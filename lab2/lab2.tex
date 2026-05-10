@@ -1,0 +1,457 @@
+\documentclass[a4paper, final]{article}
+%\usepackage{literat} % Нормальные шрифты
+\usepackage[14pt]{extsizes} % для того чтобы задать нестандартный 14-ый размер шрифта
+\usepackage{tabularx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage[left=25mm, top=20mm, right=20mm, bottom=20mm, footskip=10mm]{geometry}
+\usepackage{ragged2e} %для растягивания по ширине
+\usepackage{setspace} %для межстрочного интервала
+\usepackage{moreverb} %для работы с листингами
+\usepackage{indentfirst} % для абзацного отступа
+\usepackage{moreverb} %для печати в листинге исходного кода программ
+\usepackage{pdfpages} %для вставки других pdf файлов
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{afterpage}
+\usepackage{longtable}
+\usepackage{float}
+
+
+
+% \usepackage[paper=A4,DIV=12]{typearea}
+\usepackage{pdflscape}
+% \usepackage{lscape}
+
+\usepackage{array}
+\usepackage{multirow}
+
+\renewcommand\verbatimtabsize{4\relax}
+\renewcommand\listingoffset{0.2em} %отступ от номеров строк в листинге
+\renewcommand{\arraystretch}{1.4} % изменяю высоту строки в таблице
+\usepackage[font=small, singlelinecheck=false, justification=centering, format=plain, labelsep=period]{caption} %для настройки заголовка таблицы
+\usepackage{listings} %листинги
+\usepackage{xcolor} % цвета
+\usepackage{hyperref}% для гиперссылок
+\usepackage{enumitem} %для перечислений
+
+% Настраиваем листинги, чтобы они использовали счётчик figure
+% \AtBeginDocument{
+	%   \renewcommand{\thelstlisting}{\thefigure}  % Листинги используют тот же счетчик, что и рисунки
+	%   \renewcommand{\lstlistingname}{Рис.}    % Меняем подпись на "Рисунок"
+	% }
+
+% Автоматически увеличиваем счетчик figure перед каждым листингом
+% \let\oldlstlisting\lstlisting
+% \renewcommand{\lstlisting}[1][]{%
+	%     \refstepcounter{figure}% Увеличиваем счетчик figure
+	%     \oldlstlisting[#1]% Вызываем оригинальную команду lstlisting
+	% }
+
+\newcommand{\specialcell}[2][l]{\begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
+
+
+\setlist[enumerate,itemize]{leftmargin=1.2cm} %отступ в перечислениях
+
+\hypersetup{colorlinks,
+	allcolors=[RGB]{010 090 200}} %красивые гиперссылки (не красные)
+
+% подгружаемые языки — подробнее в документации listings (это всё для листингов)
+\lstloadlanguages{ Haskell}
+% включаем кириллицу и добавляем кое−какие опции
+\lstset{tabsize=2,
+	breaklines,
+	basicstyle=\footnotesize,
+	columns=fullflexible,
+	flexiblecolumns,
+	numbers=left,
+	numberstyle={\footnotesize},
+	keywordstyle=\color{blue},
+	inputencoding=cp1251,
+	extendedchars=true
+}
+\lstdefinelanguage{MyC}{
+	language=Haskell,
+	%    ndkeywordstyle=\color{darkgray}\bfseries,
+	%    identifierstyle=\color{black},
+	%    morecomment=[n]{/**}{*/},
+	%    commentstyle=\color{blue}\ttfamily,
+	%    stringstyle=\color{red}\ttfamily,
+	%    morestring=[b]",
+	%    showstringspaces=false,
+	%    morecomment=[l][\color{gray}]{//},
+	keepspaces=true,
+	escapechar=\%,
+	texcl=true
+}
+
+\textheight=24cm % высота текста
+\textwidth=16cm % ширина текста
+\oddsidemargin=0pt % отступ от левого края
+\topmargin=-1.5cm % отступ от верхнего края
+\parindent=24pt % абзацный отступ
+\parskip=5pt % интервал между абзацами
+\tolerance=2000 % терпимость к "жидким" строкам
+\flushbottom % выравнивание высоты страниц
+
+
+% Настройка листингов
+\lstset{
+	language=Haskell,
+	extendedchars=\true,
+	inputencoding=utf8,
+	keepspaces=true,
+	captionpos=t,
+}
+
+\begin{document} % начало документа
+	
+	
+	
+	% НАЧАЛО ТИТУЛЬНОГО ЛИСТА
+	\begin{center}
+		\hfill \break
+		\hfill \break
+		\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+			федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+		\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+		\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+		\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+		
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\large{Отчет по лабораторной работе №2}\\
+		\large{по дисциплине}\\
+		\large{<<Функциональное программирование>>}\\
+		\large{Вариант 3}\\
+		\hfill \break
+		
+		% \hfill \break
+		% \hfill \break
+	\end{center}
+	
+	\small{ 
+		\begin{tabular}{lrrl}
+			\!\!\!Студент, & \hspace{2cm} & & \\
+			\!\!\!группы 5130201/20102 & \hspace{2cm} & \underline{\hspace{3cm}} &Тищенко А. А. \\\\
+			\!\!\!Преподаватель,\\ \hspace{-5pt}к. т. н., доц. & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+			&&\hspace{4cm}
+		\end{tabular}
+		\begin{flushright}
+			<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2024г.
+		\end{flushright}
+	}
+	
+	\hfill \break
+	% \hfill \break
+	\begin{center} \small{Санкт-Петербург, 2024} \end{center}
+	\thispagestyle{empty} % выключаем отображение номера для этой страницы
+	
+	% КОНЕЦ ТИТУЛЬНОГО ЛИСТА
+	\newpage
+	
+	\tableofcontents
+	
+	
+	% \newpage
+	
+	% \section*{Введение}
+	
+	% \addcontentsline{toc}{section}{Введение}
+	
+	
+	\newpage
+	\section {Математическое описание}
+	\subsection{Фракталы}
+	Фрактал — множество, обладающее свойством самоподобия (объект, в точности или приближённо совпадающий с частью себя самого, то есть целое имеет ту же форму, что и одна или более частей). В математике под фракталами понимают множества точек в евклидовом пространстве, имеющие дробную метрическую размерность, либо метрическую размерность, отличную от топологической, поэтому их следует отличать от прочих геометрических фигур, ограниченных конечным числом звеньев. Самоподобные фигуры, повторяющиеся конечное число раз, называются предфракталами.
+	
+	
+	\subsection{Папоротник Барнсли}
+	Папоротник Барнсли — фрактал, названый в честь британского математика Майкла Барнсли, впервые описан в его книге <<Fractals Everywhere>>~\cite{barnsley}. Для его построения используется четыре простых трансформации, которые применяются случайным образом с определёнными вероятностями. Каждое преобразование масштабирует, поворачивает и смещает точки, начиная с одного начального положения. На каждом шаге, в зависимости от случайно выбранной трансформации, новая точка генерируется на основе предыдущей, и этот процесс повторяется многократно. Результатом становится изображение, напоминающее настоящие папоротники.
+	
+	\[
+	\begin{aligned}
+		T_1(x, y) &= \left( 0, 0.16y \right), \\
+		T_2(x, y) &= \left( 0.85x + 0.04y, -0.04x + 0.85y + 1.6 \right), \\
+		T_3(x, y) &= \left( 0.2x - 0.26y, 0.23x + 0.22y + 1.6 \right), \\
+		T_4(x, y) &= \left( -0.15x + 0.28y, 0.26x + 0.24y + 0.44 \right).
+	\end{aligned}
+	\]
+	
+	Каждое из этих преобразований применяется с вероятностью:
+	\[
+	P(T_1) = 0.01, \quad P(T_2) = 0.85, \quad P(T_3) = 0.07, \quad P(T_4) = 0.07.
+	\]
+	
+	
+	\begin{figure}[h!]
+		\centering
+		%\includegraphics[width=0.31\linewidth]{img/fern500.png}
+		\caption{Папоротник Барнсли для n = 500.}
+		\label{fig:fern500}
+	\end{figure}
+	
+	\begin{figure}[h!]
+		\centering
+		%\includegraphics[width=0.31\linewidth]{img/fern5000.png}
+		\caption{Папоротник Барнсли для n = 5000.}
+		\label{fig:fern5000}
+	\end{figure}
+	
+	\begin{figure}[h!]
+		\centering
+		%\includegraphics[width=0.31\linewidth]{img/fern50000.png}
+		\caption{Папоротник Барнсли для n = 50000.}
+		\label{fig:fern50000}
+	\end{figure}
+	
+	На рисунках 1-3 приведены примеры папоротника Барнсли для разного количества точек (n). Во всех примерах в качестве начальной была выбрана точка с координатами (0, 0).
+	
+	\newpage
+	\subsection{Дилемма заключённого}
+	Дилемма заключённого — фундаментальная проблема в теории игр, согласно которой рациональные игроки не всегда будут сотрудничать друг с другом, даже если это в их интересах. Предполагается, что игрок (<<заключённый>>) максимизирует свой собственный выигрыш, не заботясь о выгоде других. В классическом варианте дилеммы заключённого два игрока могут выбрать одно из двух действий:
+	
+	\begin{itemize}
+		\item \textbf{Сотрудничество}: Игрок решает сотрудничать с другим игроком, не сдавая его властям.
+		\item \textbf{Предательство}: Игрок решает предать другого, сдавая его властям, с целью получения личной выгоды.
+	\end{itemize}
+	
+	В зависимости от действий обоих игроков возможны следующие исходы:
+	\begin{itemize}
+		\item Если оба игрока сотрудничают, они оба получают умеренное наказание.
+		\item Если один игрок сотрудничает, а другой предаёт, то предатель получает свободу, а сотрудничающий — максимальное наказание.
+		\item Если оба игрока предают друг друга, оба получают умеренные наказания, однако хуже, чем при сотрудничестве.
+	\end{itemize}
+	
+	В таблице \ref{tbl:exodus} представлены варианты исходов дилеммы заключённого, которые рассматривались в этом варианте лабораторной работы.
+	
+	\begin{table}[h!]
+		\centering
+		\caption{Исходы дилеммы заключённого: \( \text{С} \) — сотрудничество, \( \text{П} \) — предательство}
+		\label{tbl:exodus}
+		\footnotesize
+		\begin{tabular}{|c|c|c|}
+			\hline
+			& \textbf{Игрок 2: С} & \textbf{Игрок 2: П} \\
+			\hline
+			\textbf{Игрок 1: С} & 1 год / 1 год & 10 лет / 0 лет \\
+			\hline
+			\textbf{Игрок 1: П} & 0 лет / 10 лет & 5 лет / 5 лет \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	
+	В повторяющейся дилемме заключённого игра происходит периодически, и каждый игрок может «наказать» другого за несотрудничество ранее.
+	
+	\subsection{Равновесие Нэша}
+	Равновесие Нэша — одно из ключевых понятий теории игр. Так называется набор стратегий в игре для двух и более игроков, в котором ни один участник не может увеличить выигрыш, изменив свою стратегию, если другие участники своих стратегий не меняют.
+	
+	Определить стратегию, при которой наступает равновесие можно с помощью формулы:
+	
+	\[
+	u_i(s_i^*, s_{-i}) \geq u_i(s_i, s_{-i}) \quad \text{для всех} \ s_i,
+	\]
+	
+	где:
+	\begin{itemize}
+		\item $u_i(s_i^*, s_{-i})$ — выигрыш игрока $i$, если он выбирает стратегию $s_i^*$, а остальные игроки выбирают стратегии $s_{-i}$;
+		\item $s_{-i}$ — набор стратегий всех игроков, кроме игрока $i$;
+		\item $s_i$ — стратегия игрока $i$.
+	\end{itemize}
+	
+	В случае с дилеммой заключённого равновесие Нэша достигается, когда оба игрока выбирают стратегию предательства (П). Если игрок 1 выбирает сотрудничество (С), то игрок 2, выбирая предательство (П), получает 0 лет (лучший результат для него), а игрок 1 — 10 лет. Если игрок 1 выбирает предательство (П), то игрок 2, также выбирая предательство (П), получает 5 лет, а игрок 1 — 5 лет.
+	
+	\subsection{Прощающая стратегия}
+	Прощающая стратегия заключается в том, что игрок не предает, пока это не сделает оппонент, далее мстит один ход и снова возвращается к сотрудничеству, если оппонент не продолжает предавать.
+	
+	\[
+	s_i(t) = 
+	\begin{cases}
+		\text{С}, & \text{если } s_j(t-1) = \text{С}, \\
+		\text{П}, & \text{если } s_j(t-1) = \text{П}.
+	\end{cases}
+	\]
+	где:
+	\vspace{-10pt}
+	\begin{itemize}
+		\item \( s_i(t) \) — стратегия игрока \( i \) на шаге \( t \),
+		\item \( s_j(t-1) \) — стратегия оппонента на шаге \( t-1 \).
+	\end{itemize}
+	
+	
+	\newpage
+	\section {Особенности реализации}
+	\subsection{Папоротник Барнсли}
+	\subsubsection{Аффинные преобразование точек}
+	
+	Функции, код которых представлен в листинге~\ref{lst:trfs}, реализуют четыре аффинных преобразования, используемых для построения фрактала папоротника Барнсли. Каждое преобразование принимает на вход точку в двумерном пространстве (координаты \( x \) и \( y \)) и возвращает новую точку, которая является результатом применения соответствующего преобразования.
+	
+	\begin{lstlisting}[mathescape=true, caption={Код функций, резализующих аффинные преобразования над точками для построения папоротника Барнсли.}, label={lst:trfs}]
+		type Point = (Float, Float)
+		
+		transformation1 :: Point -> Point
+		transformation1 (_, y) = (0, 0.16 * y)
+		
+		transformation2 :: Point -> Point
+		transformation2 (x, y) = (0.85 * x + 0.04 * y, -0.04 * x + 0.85 * y + 1.6)
+		
+		transformation3 :: Point -> Point
+		transformation3 (x, y) = (0.2 * x - 0.26 * y, 0.23 * x + 0.22 * y + 1.6)
+		
+		transformation4 :: Point -> Point
+		transformation4 (x, y) = (-0.15 * x + 0.28 * y, 0.26 * x + 0.24 * y + 0.44)
+	\end{lstlisting}
+	
+	\subsubsection{Генерация новой точки}
+	
+	Генерация новой точки происходит с помощью функции \texttt{genNextPoint} и вспомогательной функции \texttt{applyTransformation}, код которых представлен в листинге~\ref{lst:genDot}. \texttt{applyTransformation} принимает на вход исходную точку и случайное число от 0 до 1, затем выбирает и применяет к точке трансформацию в соответствии с заданными вероятностями, и возвращает новую точку. \texttt{genNextPoint} принимает на вход исходную точку и состояние генератора случайных чисел -- \texttt{gen}, генерирует случайное число от 0 до 1, применяет функцию \texttt{applyTransformation} и возвращает пару -- новую точку и новое состояние генератора случайных чисел. 
+	
+	\begin{lstlisting}[caption={Код функций для генераций новых точек в папоротнике Барнсли.}, label={lst:genDot}]
+		import System.Random (StdGen, mkStdGen, randomR)
+		
+		applyTransformation :: Point -> Float -> Point
+		applyTransformation point random
+		| random < 0.01 = transformation1 point
+		| random < 0.86 = transformation2 point
+		| random < 0.93 = transformation3 point
+		| otherwise = transformation4 point
+		
+		genNextPoint :: StdGen -> Point -> (Point, StdGen)
+		genNextPoint gen point =
+		let (random, newGen) = randomR (0.0, 1.0 :: Float) gen
+		in (applyTransformation point random, newGen)
+	\end{lstlisting}
+	
+	\subsubsection{Рекурсивная генерация папоротника Барнсли}
+	
+	Функция \texttt{barnsleyFern}, код которой представлен в листинге~\ref{lst:barnsleyFern}, реализует рекурсивный алгоритм генерации списка точек, из которых состоит папоротник Барнсли. Функция принимает на вход текущее состояние генератора случайных чисел, начальную точку и число -- количество шагов рекурсии, а возвращает список точек папоротника Барнсли.
+	
+	\begin{lstlisting}[caption={Код функции для построения папоротника Барнсли.}, label={lst:barnsleyFern}]
+		barnsleyFern :: StdGen -> Point -> Int -> [Point]
+		barnsleyFern _ _ 0 = []
+		barnsleyFern gen startPoint n =
+		let (nextPoint, newGen) = genNextPoint gen startPoint
+		in startPoint : barnsleyFern newGen nextPoint (n - 1)        
+	\end{lstlisting}
+	
+	
+	\subsection{Повторяющаяся дилемма заключённого}
+	\subsubsection{Равновесие Нэша}
+	
+	Функция \texttt{nashEquilibriumStrategy}, код которой представлен в листинге~\ref{lst:nashEquilibriumStrategy}, реализует равновесие Нэша. Функция рекурсивная, она принимает на вход список действий оппонента, список уже сгенерированных действий и число -- счётчик количества ходов. Функция завершается, когда достигается максимум ходов, либо когда заканчиваются ходы оппонента. Она возвращает список ходов игрока в соответствии со стратегией.
+	
+	
+	\begin{lstlisting}[caption={Код функции, резализующей стратегию в соответствии с равновесием Нэша.}, label={lst:nashEquilibriumStrategy}]
+		nashEquilibriumStrategy :: [Char] -> [Char] -> Int -> [Char]
+		nashEquilibriumStrategy opponentMoves generatedMoves n =
+		if n <= 100 && length opponentMoves > 0
+		then
+		nashEquilibriumStrategy (tail opponentMoves) (generatedMoves ++ [nextStep]) (n + 1)
+		else generatedMoves
+		where
+		cases = [[' С', ' С'], [' С', ' П'], [' П', ' С'], [' П', ' П']]
+		results = [[1, 1], [10, 0], [0, 10], [5, 5]]
+		p_years = min (results !! 1 !! 1) (results !! 3 !! 1)
+		s_years = min (results !! 0 !! 1) (results !! 2 !! 1)
+		nextStep | p_years <= s_years = ' П'
+		| otherwise = ' С'
+	\end{lstlisting}
+	
+	\subsubsection{Прощающая стратегия}
+	
+	Функция \texttt{forgivingStrategy}, код которой представлен в листинге~\ref{lst:forgivingStrategy}, реализует прощающую стратегию. Функция рекурсивная, она принимает на вход список действий оппонента, список уже сгенерированных действий и число -- счётчик количества ходов. Функция завершается, когда достигается максимум ходов, либо когда заканчиваются ходы оппонента. Она возвращает список ходов игрока в соответствии со стратегией.
+	
+	\begin{lstlisting}[caption={Код функции, реализующей прощающую стратегию.}, label={lst:forgivingStrategy}]
+		forgivingStrategy :: [Char] -> [Char] -> Int -> [Char]
+		forgivingStrategy opponentMoves generatedMoves n
+		| n > 100 || length opponentMoves == 1 = generatedMoves
+		| n == 0                               
+		= forgivingStrategy opponentMoves (generatedMoves ++ ['С']) (n + 1)
+		| head opponentMoves == 'С'            
+		= forgivingStrategy (tail opponentMoves) (generatedMoves ++ ['С']) (n + 1)
+		| otherwise                            
+		= forgivingStrategy (tail opponentMoves) (generatedMoves ++ ['П']) (n + 1)
+	\end{lstlisting}
+	
+	\subsubsection{Подсчёт очков}
+	Функция \texttt{getScore}, код которой представлен в листинге~\ref{lst:getScore}, подсчитывает количество лет заключения для каждого игрока. Функция рекурсивная, она принимает на вход список действий первого игрока, список действий второго игрока, и два числа -- количество лет заключения для перового и второго игроков. Функция возвращает пару из двух чисел -- количества лет заключения для игроков.
+	
+	\begin{lstlisting}[caption={Код функции для подсчёта лет заключения.}, label={lst:getScore}]
+		getScore :: [Char] -> [Char] -> Int -> Int -> (Int, Int)
+		getScore moves1 moves2 score1 score2 =
+		if length moves1 == 0 then (score1, score2)
+		else getScore (tail moves1) (tail moves2) newScore1 newScore2
+		where 
+		cases = [[' С', ' С'], [' С', ' П'], [' П', ' С'], [' П', ' П']]
+		results = [[1, 1], [10, 0], [0, 10], [5, 5]]
+		newScore1 = score1 + results !! indexOf cases [head moves1, head moves2] !! 0
+		newScore2 = score2 + results !! indexOf cases [head moves1, head moves2] !! 1
+	\end{lstlisting}
+	
+	
+	\subsubsection{Организация игры}
+	Функция \texttt{game}, код которой представлен в листинге~\ref{lst:game}, запускает игру. Она принимает на вход список действий первого игрока и функцию, реализующую стратегию игры. Функция возвращает список ответных ходов, выбранных в соответствии с указанной стратегией.
+	
+	\begin{lstlisting}[caption={Код функции для подсчёта лет заключения.}, label={lst:game}]
+		game :: [Char] -> ([Char] -> [Char] -> Int -> [Char]) -> [Char]
+		game playerMoves gameStrategy
+		| null playerMoves = []
+		| otherwise = gameStrategy playerMoves [] 0
+	\end{lstlisting}
+	
+	
+	\newpage
+	\section {Результаты работы программы}
+	
+	На Рис.~\ref{fig:output1} демонстрируется работа программы для генерации точек папоротника Барнсли на примере с 20 точками.
+	
+	\begin{figure}[h]
+		\centering
+		%\includegraphics[width=1\linewidth]{img/output1.png}
+		\caption{Результат запуска программы для генерации точек папоротника Барнсли.}
+		\label{fig:output1}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		%\includegraphics[width=0.7\linewidth]{img/output2.png}
+		\caption{Повторяющаяся дилемма заключённого при прощающей стратегии.}
+		\label{fig:output2}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		%\includegraphics[width=0.7\linewidth]{img/output3.png}
+		\caption{Повторяющаяся дилемма заключённого для равновесия по Нэшу.}
+		\label{fig:output3}
+	\end{figure}
+	
+	На Рис.~\ref{fig:output2} представлена повторяющаяся дилемма заключённого для прощающей стретегии при заданных ходах игрока: \texttt{['С', 'П', 'С', 'С', 'П', 'П', 'С', 'С', 'П', 'П']}. А на Рис.~\ref{fig:output3} для равновесия по Нэшу. 
+	
+	\newpage
+	\section*{Заключение}
+	\addcontentsline{toc}{section}{Заключение}
+	
+	В ходе выполнения лабораторной работы были реализованы две программы на языке программирования Haskell. Первая программа генерирует точки для папоротника Барнсли с помощью рекурсивного алгоритма с заданным количеством шагов рекурсии. Вторая программа, генерирует действия второго заключённого при заданной стратегии и действиях первого заключённого. В рамках лабораторной работы реализованы две стратегии: прощающая стратегия и стратегия основанная на равновесии по Нэшу. 
+	
+	
+	\newpage
+	\section*{Список литературы}
+	\addcontentsline{toc}{section}{Список литературы}
+	
+	\vspace{-1.5cm}
+	\begin{thebibliography}{0}
+		\bibitem{barnsley}
+		Michael F. Barnsley, Hawley Rising. Fractals Everywhere. — Morgan Kaufmann, 1993-01-01. — 568 с.
+		\bibitem{kolokoltsov}
+		Колокольцов, В. Н., Малафеев, О. А. <<Математическое моделирование многоагентных систем конкуренции и кооперации (Теория игр для всех)>>. — Санкт-Петербург: Издательство Лань, 2022. — 624 с.
+		
+	\end{thebibliography}
+	
+	
+\end{document}

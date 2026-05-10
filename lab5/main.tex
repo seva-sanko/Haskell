@@ -1,0 +1,315 @@
+\documentclass[a4paper, final]{article}
+\usepackage[14pt]{extsizes}
+\usepackage{tabularx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage[left=25mm, top=20mm, right=20mm, bottom=20mm, footskip=10mm]{geometry}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+
+\hypersetup{colorlinks,
+	allcolors=[RGB]{010 090 200}}
+
+\lstset{
+	language=Haskell,
+	tabsize=2,
+	breaklines,
+	basicstyle=\footnotesize,
+	columns=fullflexible,
+	numbers=left,
+	numberstyle={\footnotesize},
+	keywordstyle=\color{blue},
+	inputencoding=utf8,
+	extendedchars=true
+}
+
+\lstset{
+	language=Haskell,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{orange},
+	numbers=left,
+	numberstyle=\tiny,
+	stepnumber=1,
+	numbersep=5pt,
+	frame=single,
+	breaklines=true,
+	captionpos=b,
+	inputencoding=utf8,  % добавлено
+	extendedchars=true   % добавлено
+}
+
+\begin{document}
+	
+	\begin{center}
+		\hfill \break
+		\hfill \break
+		\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+			федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+		\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+		\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+		\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+		
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\large{Отчет по лабораторной работе №5}\\
+		\large{по дисциплине}\\
+		\large{<<Функциональное программирование>>}\\
+		\large{Вариант 11}\\
+		\hfill \break
+	\end{center}
+	
+	\small{ 
+		\begin{tabular}{lrrl}
+			\!\!\!Студент, & \hspace{2cm} & & \\
+			\!\!\!группы 5130201/30102 & \hspace{2cm} & \underline{\hspace{3cm}} &Санько В. В. \\\\
+			\!\!\!Преподаватель,\\ \hspace{-5pt}к. т. н., доц. & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+			&&\hspace{4cm}
+		\end{tabular}
+		\begin{flushright}
+			<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2026г.
+		\end{flushright}
+	}
+	
+	\hfill \break
+	\vspace{3cm}
+	\begin{center} \small{Санкт-Петербург, 2026} \end{center}
+	\thispagestyle{empty}
+	
+	\newpage
+	
+	\tableofcontents
+	
+	\newpage
+	\section*{Введение}
+	\addcontentsline{toc}{section}{Введение}
+	
+	Для решения задач, требующих совмещения доступа к конфигурации и обработки ошибок, в языке Haskell используются трансформеры монад. Трансформеры позволяют «наслаивать» функциональность различных монад друг на друга.
+	
+	В данной работе реализована система авторизации, использующая стек трансформеров: \texttt{ReaderT} для передачи неизменяемой конфигурации системы и \texttt{ExceptT} для обработки исключительных ситуаций, таких как неверный токен или отсутствие прав доступа. Программа также интегрирована с библиотекой \texttt{aeson} для загрузки настроек из внешнего JSON-файла.
+	
+	
+	
+	\newpage
+	\section*{Постановка задачи}
+	\addcontentsline{toc}{section}{Постановка задачи}
+	\par \textbf{Цель работы:} Разработать на языке Haskell программу аутентификации пользователя с использованием трансформеров монад и внешнего файла конфигурации.
+	\par \textbf{Задачи:}
+	\begin{itemize}
+		\item Описать структуру конфигурации системы и реализовать её чтение из формата JSON.
+		\item Определить стек трансформеров \texttt{AuthStack} на базе \texttt{ExceptT}, \texttt{ReaderT} и \texttt{IO}.
+		\item Реализовать логику проверки токена доступа и прав администратора.
+		\item Обеспечить корректный вывод сообщений пользователю, учитывая буферизацию потока вывода.
+		\item Обработать ошибки превышения количества попыток ввода и ограничение доступа к защищенным ресурсам.
+		\item Реализовать проект с использованием сборщика \texttt{stack}.
+	\end{itemize}
+	
+	\newpage
+	\section{Реализация}
+	
+	\subsection{Подключение расширений и импорт библиотек}
+	Для работы программы требуются расширения языка для обработки строковых литералов и автоматического вывода экземпляров классов типов.
+	
+	\begin{lstlisting}
+		{-# LANGUAGE OverloadedStrings #-}
+		{-# LANGUAGE DeriveGeneric #-}
+		
+		module Main where
+		
+		import Control.Monad.Reader (ReaderT, runReaderT, ask, lift)
+		import Control.Monad.Except (ExceptT, runExceptT, throwError)
+		import Control.Monad.IO.Class (MonadIO, liftIO)
+		import Data.Aeson (FromJSON, eitherDecodeFileStrict)
+		import Data.Text (Text)
+		import qualified Data.Text as T
+		import qualified Data.Text.IO as T
+		import GHC.Generics (Generic)
+		import System.Exit (exitSuccess)
+		import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
+	\end{lstlisting}
+	Использование \texttt{OverloadedStrings} упрощает работу с типом \texttt{Text}, а \texttt{DeriveGeneric} позволяет библиотеке \texttt{aeson} автоматически сопоставлять поля JSON с полями структуры данных Haskell. Импорты охватывают все необходимые инструменты для работы со стеком трансформеров.
+	
+	\subsection{Определение типов данных и стека монад}
+	Основой системы является конфигурация и типы возможных ошибок.
+	
+	\begin{lstlisting}
+		data Config = Config
+		{ adminToken :: Text
+			, userTokens :: [Text]
+			, maxAttempts :: Int
+		} deriving (Show, Generic)
+		
+		instance FromJSON Config
+		
+		data AuthError
+		= InvalidToken
+		| NoAttemptsLeft
+		| ForbiddenResource
+		deriving (Show, Eq)
+		
+		type AuthStack = ExceptT AuthError (ReaderT Config IO)
+	\end{lstlisting}
+	Тип \texttt{AuthStack} представляет собой стек, где \texttt{ExceptT} находится на верхнем уровне для возможности прерывания вычислений при ошибке, а \texttt{ReaderT} обеспечивает доступ к конфигурации на протяжении всей работы.
+	
+	\subsection{Логика проверки доступа}
+	Основная функция проверки \texttt{checkAccess} работает внутри созданного стека монад.
+	
+	\begin{lstlisting}
+		checkAccess :: Text -> Bool -> AuthStack ()
+		checkAccess token isAdminPanel = do
+		config <- lift ask
+		
+		if maxAttempts config <= 0
+		then throwError NoAttemptsLeft
+		else do
+		let isValid = token `elem` userTokens config || token == adminToken config
+		if not isValid
+		then throwError InvalidToken
+		else if isAdminPanel && token /= adminToken config
+		then throwError ForbiddenResource
+		else return ()
+	\end{lstlisting}
+	Здесь используется функция \texttt{lift ask} для того, чтобы «поднять» действие чтения из внутреннего слоя \texttt{ReaderT} во внешний \texttt{ExceptT}. В случае обнаружения невалидных данных используется \texttt{throwError} для немедленного выхода из логической цепочки.
+	
+	\subsection{Загрузка конфигурации и вспомогательные функции}
+	Программа поддерживает внешнее управление через \texttt{config.json}.
+	
+	\begin{lstlisting}
+		loadConfig :: FilePath -> IO Config
+		loadConfig path = do
+		result <- eitherDecodeFileStrict path
+		case result of
+		Left err -> do
+		putStrLn $ "config.json: " ++ err
+		return Config { adminToken = "secret123", userTokens = ["abc"], maxAttempts = 3 }
+		Right cfg -> return cfg
+		
+		askUser :: Text -> IO Text
+		askUser prompt = T.putStr prompt >> T.getLine
+		
+		isYes :: Text -> Bool
+		isYes input = T.toLower input `elem` ["", "yes", "y"]
+	\end{lstlisting}
+	Функция \texttt{loadConfig} обеспечивает отказоустойчивость: если файл отсутствует или содержит ошибки, система переходит на значения по умолчанию. Это гарантирует работоспособность программы в любых условиях.
+	
+	\subsection{Главный цикл и обработка результатов}
+	Управление потоком выполнения реализовано через рекурсивный \texttt{authLoop}.
+	
+	\begin{lstlisting}
+		main :: IO ()
+		main = do
+		hSetBuffering stdout NoBuffering
+		config <- loadConfig "config.json"
+		authLoop config 0
+		
+		authLoop :: Config -> Int -> IO ()
+		authLoop config failedAttempts = do
+		putStrLn "\n--- "
+		token <- askUser ": "
+		adminInput <- askUser ": "
+		
+		result <- runReaderT (runExceptT (checkAccess token (isYes adminInput))) config
+		
+		case result of
+		Right () -> putStrLn "\n "
+		Left err -> handleError err config failedAttempts
+		
+		handleError :: AuthError -> Config -> Int -> IO ()
+		handleError err config failedAttempts = case err of
+		InvalidToken -> do
+		let newAttempts = failedAttempts + 1
+		if newAttempts >= maxAttempts config
+		then putStrLn "" >> exitSuccess
+		else authLoop config newAttempts
+		_ -> authLoop config failedAttempts
+	\end{lstlisting}
+	В функции \texttt{main} отключается буферизация (\texttt{NoBuffering}), что критично для корректного отображения запросов ввода. Запуск стека производится вложенными вызовами \texttt{runReaderT} и \texttt{runExceptT}.
+	
+	\newpage
+	\section{Тестирование}
+	Для проверки программы использовался файл \texttt{config.json} следующего содержания:
+	\begin{verbatim}[language=json, numbers=none]
+		{
+			"adminToken": "secret123",
+			"userTokens": ["abc", "def"],
+			"maxAttempts": 3
+		}
+	\end{verbatim}
+	
+	Пример работы программы при попытке входа в роли админа:
+	
+	\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=1]{/Users/Seva/Desktop/11.png}
+		\label{splitterH} 
+		\caption{Вход с правами администратора}
+	\end{figure}
+	
+	Пример работы программы при входе с неверными правами:
+	\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=1]{/Users/Seva/Desktop/9.png}
+		\label{splitterH} 
+		\caption{Пропытка входа с пользователя в администратора}
+	\end{figure}
+	
+	\newpage
+	Пример работы программы при вводе неверного токена:
+	
+	
+	\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=1]{/Users/Seva/Desktop/10.png}
+		\label{splitterH} 
+		\caption{Неверный токен}
+	\end{figure}
+	
+	
+	\par
+		Пример успешного входа пользователя:
+	\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=1]{/Users/Seva/Desktop/8.png}
+		\label{splitterH} 
+		\caption{Успешный вход пользователя}
+	\end{figure}
+	
+	
+	\newpage
+	\section*{Заключение}
+	\addcontentsline{toc}{section}{Заключение}
+	В ходе работы была разработана программа на языке Haskell, демонстрирующая применение трансформеров монад (\texttt{ReaderT} и \texttt{ExceptT}). Это позволило элегантно совместить чистую логику обработки ошибок с доступом к глобальной конфигурации, сохраняя при этом возможность выполнения побочных эффектов ввода-вывода. Также были освоены расширения языка (\texttt{DeriveGeneric}) и работа с библиотекой \texttt{aeson}.	
+	
+	
+	\newpage
+	\addcontentsline{toc}{section}{Список литературы}
+	
+	\vspace{-1.5cm}
+	\begin{thebibliography}{0}
+		\bibitem{hod}
+		Haskell Official Documentation -- официальная документация по языку Haskell [Электронный ресурс]. 	 
+		\href {https://www.haskell.org/documentation/}{https://www.haskell.org/documentation/}
+		\bibitem{learn} Миран Липовача. Изучай Haskell во имя добра! / Пер. с англ. Леушина Д., Синицына А., Арсанукаева Я. — М.: ДМК Пресс, 2012. — 490 с.
+		\bibitem{docs} Официальная документация Haskell: \url{https://www.haskell.org} [Дата обращения: 17.11.2025]
+		
+	\end{thebibliography}
+	
+\end{document}

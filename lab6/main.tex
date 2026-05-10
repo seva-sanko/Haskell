@@ -1,0 +1,246 @@
+\documentclass[a4paper, final]{article}
+\usepackage[14pt]{extsizes}
+\usepackage{tabularx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage[left=25mm, top=20mm, right=20mm, bottom=20mm, footskip=10mm]{geometry}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{titlesec}
+
+\hypersetup{colorlinks,
+	allcolors=[RGB]{010 090 200}}
+
+\lstset{
+	language=Haskell,
+	tabsize=2,
+	breaklines,
+	basicstyle=\ttfamily\footnotesize,
+	columns=fullflexible,
+	numbers=left,
+	numberstyle={\footnotesize},
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{orange},
+	frame=single,
+	inputencoding=utf8,
+	extendedchars=true,
+	keepspaces=true
+}
+
+\begin{document}
+	
+	\begin{center}
+		\hfill \break
+		\hfill \break
+		\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+			федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+		\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+		\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+		\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+		
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\large{Отчет по лабораторной работе №6}\\
+		\large{по дисциплине}\\
+		\large{<<Функциональное программирование>>}\\
+		\large{Вариант 47}\\
+		\hfill \break
+	\end{center}
+	
+	\small{ 
+		\begin{tabular}{lrrl}
+			\!\!\!Студент, & \hspace{2cm} & & \\
+			\!\!\!группы 5130201/30102 & \hspace{2cm} & \underline{\hspace{3cm}} &Санько В. В. \\\\
+			\!\!\!Преподаватель\\ \hspace{-5pt} & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+			&&\hspace{4cm}
+		\end{tabular}
+		\begin{flushright}
+			<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2026г.
+		\end{flushright}
+	}
+	
+	\hfill \break
+	\vspace{3cm}
+	\begin{center} \small{Санкт-Петербург, 2026} \end{center}
+	\thispagestyle{empty}
+	
+	\newpage
+	
+	\tableofcontents
+	
+	\newpage
+	\section*{Введение}
+	\addcontentsline{toc}{section}{Введение}
+	
+	В функциональном программировании, в частности в языке Haskell, широкое распространение получил подход Property-based testing (тестирование на основе свойств). В отличие от классического модульного тестирования, где программист вручную задает входные данные, данный подход позволяет описывать общие свойства функций, которые должны выполняться для любых допустимых входных значений.
+	
+	В данной работе рассматривается использование библиотеки \texttt{QuickCheck} для автоматической генерации тестовых данных и проверки математических свойств функций сравнения по модулю и вычисления глубины бинарного дерева. Проект организован с использованием инструмента сборки \texttt{stack}, что обеспечивает модульность и корректное управление зависимостями.
+	
+	\newpage
+	\section*{Постановка задачи}
+	\addcontentsline{toc}{section}{Постановка задачи}
+	\par \textbf{Цель работы:} Реализовать библиотеку для работы с модульной арифметикой и бинарными деревьями, обеспечив покрытие кода автоматизированными тестами на основе свойств.
+	\par \textbf{Задачи:}
+	\begin{itemize}
+		\item Создать проект с использованием сборщика \texttt{stack}, выделив логику в модуль \texttt{Lib.hs}, а тесты — в \texttt{Spec.hs}.
+		\item Реализовать функцию \texttt{isCongruent} для проверки равенства чисел по модулю и ограничить доступ к вспомогательным функциям.
+		\item Проверить свойства \texttt{isCongruent}: связь с разностью чисел, симметричность и рефлексивность.
+		\item Реализовать структуру данных \texttt{Tree} и функцию \texttt{treeDepth}.
+		\item Описать экземпляр класса \texttt{Arbitrary} для автоматической генерации случайных бинарных деревьев.
+		\item Проверить свойства глубины дерева: значения для пустого и единичного дерева, рекуррентное соотношение и монотонность при добавлении узлов.
+	\end{itemize}
+	
+	\newpage
+	\section{Реализация}
+	
+	\subsection{Библиотека функций (Lib.hs)}
+	В модуле \texttt{Lib} реализована основная логика программы. Для обеспечения инкапсуляции вспомогательная функция \texttt{modulus} не включена в список экспорта модуля.
+	
+	\begin{lstlisting}
+		module Lib
+		( isCongruent
+		, Tree(..)
+		, treeDepth
+		) where
+		
+		modulus :: Int -> Int -> Int
+		modulus a b
+		| b == 0    = 0
+		| otherwise = a `mod` abs b
+		
+		isCongruent :: Int -> Int -> Int -> Bool
+		isCongruent a b m
+		| m == 0    = error "0"
+		| otherwise = (a `mod` m) == (b `mod` m)
+		
+		data Tree a = Empty | Node a (Tree a) (Tree a)
+		deriving (Show, Eq)
+		
+		treeDepth :: Tree a -> Int
+		treeDepth Empty = 0
+		treeDepth (Node _ left right) = 1 + max (treeDepth left) (treeDepth right)
+	\end{lstlisting}
+	
+	Представленный программный код обеспечивает базовый функционал, необходимый для выполнения математических операций и манипуляций со структурами данных, сохраняя при этом чистоту интерфейса модуля.
+	
+	\subsection{Тестирование на основе свойств (Spec.hs)}
+	Модуль тестов использует библиотеку \texttt{QuickCheck}. Для тестирования деревьев определен генератор случайных структур с контролем размера (\texttt{sized}), что предотвращает бесконечную рекурсию при генерации.
+	
+	\begin{lstlisting}
+		{-# LANGUAGE ScopedTypeVariables #-}
+		import Lib
+		import Test.QuickCheck
+		import Control.Exception (evaluate, try, SomeException)
+		
+		prop_congruentDifference a b (NonZero m) =
+		isCongruent a b m == ((a - b) `mod` m == 0)
+		
+		prop_congruentSymmetric a b (NonZero m) =
+		isCongruent a b m == isCongruent b a m
+		
+		prop_congruentEqual a (NonZero m) =
+		isCongruent a a m == True
+		
+		prop_zeroModulusThrows a b = ioProperty $ do
+		result <- try (evaluate (isCongruent a b 0))
+		return $ case result of
+		Left (_ :: SomeException) -> True
+		Right _                   -> False
+		
+		instance Arbitrary a => Arbitrary (Tree a) where
+		arbitrary = sized genTree
+		where
+		genTree 0 = return Empty
+		genTree n = do
+		val <- arbitrary
+		left <- genTree (n `div` 2)
+		right <- genTree (n `div` 2)
+		return $ Node val left right
+	\end{lstlisting}
+	
+	Использование специализированных типов, таких как \texttt{NonZero}, и механизмов перехвата исключений позволяет библиотеке \texttt{QuickCheck} проводить стресс-тестирование функций даже в условиях потенциально некорректных входных данных.
+	
+	\subsection{Свойства глубины дерева}
+	Для проверки работы с деревьями реализованы свойства, описывающие базовые случаи и поведение структуры при изменениях.
+	
+	\begin{lstlisting}
+		prop_emptyTreeDepth = treeDepth (Empty :: Tree Int) == 0
+		
+		prop_singleNodeDepth val = treeDepth (Node val Empty Empty) == 1
+		
+		prop_treeDepthMax val l r =
+		treeDepth (Node val l r) == 1 + max (treeDepth l) (treeDepth r)
+		
+		prop_addNodeNotDecrease t v = treeDepth (addNode v t) >= treeDepth t
+		where
+		addNode x Empty = Node x Empty Empty
+		addNode x (Node val l r) = Node val (addNode x l) r
+	\end{lstlisting}
+	
+	Данный набор свойств формирует полную спецификацию ожидаемого поведения функции \texttt{treeDepth}, что позволяет гарантировать стабильность работы алгоритма при изменении внутренней реализации деревьев.
+	
+	\newpage
+	\section{Тестирование}
+	Запуск тестов осуществляется командой \texttt{stack test}. Система автоматически генерирует по 100 наборов входных данных для каждого свойства.
+	
+	Пример вывода результатов тестирования:
+	
+	\begin{figure}[htpb]
+		\centering
+		\includegraphics[width=0.6\textwidth]{/Users/Seva/Desktop/12.png}
+		\caption{Результаты выполнения тестов QuickCheck}
+	\end{figure}
+	
+		\begin{figure}[htpb]
+		\centering
+		\includegraphics[width=0.6\textwidth]{/Users/Seva/Desktop/13.png}
+		\caption{Вызов ошибок в первой части}
+	\end{figure}
+	
+		\begin{figure}[htpb]
+		\centering
+		\includegraphics[width=0.6\textwidth]{/Users/Seva/Desktop/14.png}
+		\caption{Вызов ошибок во второй части}
+	\end{figure}
+	
+	
+	В ходе тестирования были проверены следующие сценарии:
+	\begin{enumerate}
+		\item \textbf{isCongruentSymmetric}: Подтверждена симметричность отношения эквивалентности.
+		\item \textbf{prop\_zeroModulusThrows}: Подтверждено корректное выбрасывание исключения при попытке деления на ноль.
+		\item \textbf{treeDepthMax}: Проверена корректность рекурсивного обхода дерева.
+		\item \textbf{prop\_addNodeNotDecrease}: Доказано, что добавление нового узла в любую позицию дерева не может уменьшить его общую глубину.
+	\end{enumerate}
+	
+	При внесении преднамеренной ошибки в код (например, изменение формулы глубины на \texttt{max (depth l) (depth r)}), QuickCheck успешно находит контрпример и выполняет операцию \textit{shrinking} для поиска минимального ошибочного случая.
+	
+	\newpage
+	\section*{Заключение}
+	\addcontentsline{toc}{section}{Заключение}
+	В результате выполнения работы был разработан модульный проект на языке Haskell, реализующий функции математической логики и обработки древовидных структур данных. Использование библиотеки \texttt{QuickCheck} позволило облегчить процесс поиска ошибок и верифицировать свойства функций, включая граничные случаи (пустые деревья, отрицательные числа). Были освоены механизмы инкапсуляции в Haskell через экспорт модулей и методы тестирования исключений в функциональном коде.	
+	
+	\newpage
+	\addcontentsline{toc}{section}{Список литературы}
+	
+	\vspace{-1.5cm}
+	\begin{thebibliography}{0}
+		\bibitem{hod}
+		Haskell Official Documentation -- официальная документация по языку Haskell [Электронный ресурс]. 	 
+		\href {https://www.haskell.org/documentation/}{https://www.haskell.org/documentation/}
+		\bibitem{learn} Миран Липовача. Изучай Haskell во имя добра! / Пер. с англ. — М.: ДМК Пресс, 2012. — 490 с.
+		\bibitem{quick} QuickCheck: Automatic property-based testing of Haskell programs [Электронный ресурс]. \url{https://hackage.haskell.org/package/QuickCheck}
+		\bibitem{stack} The Haskell Tool Stack User Guide [Электронный ресурс]. \url{https://docs.haskellstack.org/en/stable/README/}
+	\end{thebibliography}
+	
+\end{document}

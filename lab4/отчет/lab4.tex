@@ -1,0 +1,340 @@
+\documentclass[a4paper, final]{article}
+\usepackage[14pt]{extsizes}
+\usepackage{tabularx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage[left=25mm, top=20mm, right=20mm, bottom=20mm, footskip=10mm]{geometry}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+
+\hypersetup{colorlinks,
+allcolors=[RGB]{010 090 200}}
+
+\lstset{
+language=Haskell,
+tabsize=2,
+breaklines,
+basicstyle=\footnotesize,
+columns=fullflexible,
+numbers=left,
+numberstyle={\footnotesize},
+keywordstyle=\color{blue},
+inputencoding=utf8,
+extendedchars=true
+}
+
+\lstset{
+language=Haskell,
+basicstyle=\ttfamily\small,
+keywordstyle=\color{blue},
+commentstyle=\color{gray},
+stringstyle=\color{orange},
+numbers=left,
+numberstyle=\tiny,
+stepnumber=1,
+numbersep=5pt,
+frame=single,
+breaklines=true,
+captionpos=b,
+inputencoding=utf8,  % добавлено
+extendedchars=true   % добавлено
+}
+
+\begin{document}
+
+\begin{center}
+\hfill \break
+\hfill \break
+\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+
+\hfill \break
+\hfill \break
+\hfill \break
+\hfill \break
+\large{Отчет по лабораторной работе №4}\\
+\large{по дисциплине}\\
+\large{<<Функциональное программирование>>}\\
+\large{Вариант 45}\\
+\hfill \break
+\end{center}
+
+\small{ 
+\begin{tabular}{lrrl}
+\!\!\!Студент, & \hspace{2cm} & & \\
+\!\!\!группы 5130201/30102 & \hspace{2cm} & \underline{\hspace{3cm}} &Санько В. В. \\\\
+\!\!\!Преподаватель,\\ \hspace{-5pt}к. т. н., доц. & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+&&\hspace{4cm}
+\end{tabular}
+\begin{flushright}
+<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2025г.
+\end{flushright}
+}
+
+\hfill \break
+\vspace{3cm}
+\begin{center} \small{Санкт-Петербург, 2025} \end{center}
+\thispagestyle{empty}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+\section*{Введение}
+\addcontentsline{toc}{section}{Введение}
+
+Для решения задач обработки потоковых данных в языке Haskell удобно использовать монады. Монада Writer позволяет выполнять вычисления, накапливая дополнительный вывод (лог), не прерывая основной поток выполнения. Это полезно при обработке массива данных, когда одна ошибочная запись не должна останавливать работу всей программы, но информацию об ошибке необходимо сохранить.
+
+В работе реализована программа для чтения и выполнения арифметических операций из файла с использованием монады Writer  для логирования успешных и неудачных операций. Программа реализована без использования \texttt{do}-нотации и трансформеров монад, с явным управлением файловым дескриптором.
+
+
+
+\newpage
+\section*{Постановка задачи}
+\addcontentsline{toc}{section}{Постановка задачи}
+\par \textbf{Цель работы:} Разработать на языке Haskell программу для выполнения арифметических действий, считываемых из текстового файла, с использованием монады Writer.
+\par \textbf{Задачи:}
+\begin{itemize}
+\item Определить типы данных для представления результата вычислений и лога ошибок.
+\item Использовать стандартную монаду Writer из библиотеки mtl для накопления сообщений об ошибках (неверный формат строки, деление на ноль, нечисловые
+аргументы).
+\item Реализовать функции арифметических операций (+, -, *, /) над целыми числами.
+\item Реализовать чтение файла используя явное управление файловым дескриптором
+(Handle, openFile, hClose).
+\item Отказаться от использования do-нотации, применяя явное связывание монад (>>=).
+\item Реализовать проект с использованием сборщика stack.
+\end{itemize}
+
+\newpage
+\section{Реализация}
+
+\subsection{Определение типов и монады Writer}
+
+Для представления арифметических операций и выражений определены следующие типы:
+
+\begin{lstlisting}
+data Operation = Add | Sub | Mul | Div deriving (Eq, Show)
+data Expr = Expr Int Operation Int
+\end{lstlisting}
+
+Тип \texttt{Calculation} определён как монада \texttt{Writer} с логом в виде списка строк:
+
+\begin{lstlisting}
+type Calculation = Writer [String] (Maybe Int)
+\end{lstlisting}
+
+Здесь \texttt{Maybe Int} — результат вычисления (\texttt{Just} значение или \texttt{Nothing} при ошибке), а \texttt{[String]} — накапливаемый лог.
+
+\subsection{Логика вычислений}
+
+\subsubsection*{Парсинг строки}
+
+Функция \texttt{parseExpr} преобразует строку в значение типа \texttt{Maybe Expr}:
+
+\begin{lstlisting}
+parseExpr :: String -> Maybe Expr
+parseExpr str = case words str of
+[xStr, "+", yStr] -> buildExpr xStr Add yStr
+[xStr, "-", yStr] -> buildExpr xStr Sub yStr  
+[xStr, "*", yStr] -> buildExpr xStr Mul yStr
+[xStr, "/", yStr] -> buildExpr xStr Div yStr
+_ -> Nothing
+where
+buildExpr xStr op yStr = 
+readMaybe xStr >>= \x ->
+readMaybe yStr >>= \y ->
+return (Expr x op y)
+
+readMaybe s = case reads s of
+[(n, "")] -> Just n
+_ -> Nothing
+\end{lstlisting}
+
+Функция использует \texttt{words} для разбиения строки на части, проверяет соответствие шаблону «число оператор число» и пытается преобразовать строки в числа с помощью вспомогательной функции \texttt{readMaybe}. Если формат строки не соответствует ожидаемому или числа некорректны, возвращается \texttt{Nothing}
+
+
+
+
+\subsubsection*{Вычисление выражения}
+
+Функция \texttt{calculateExpr} выполняет вычисление и формирует лог:
+
+\begin{lstlisting}
+calculateExpr :: Expr -> Calculation
+calculateExpr (Expr x op y) = 
+let result = case op of
+Add -> Just (x + y)
+Sub -> Just (x - y)
+Mul -> Just (x * y)
+Div -> if y == 0 
+then Nothing
+else Just (x `div` y)
+logMsg = case result of
+Just res -> ["Success: " ++ show x ++ " " ++ opSymbol op ++ " " ++ show y ++ " = " ++ show res]
+Nothing -> ["Error: division by zero in " ++ show x ++ " / " ++ show y]
+in writer (result, logMsg)
+where
+opSymbol Add = "+"
+opSymbol Sub = "-"
+opSymbol Mul = "*"
+opSymbol Div = "/"
+\end{lstlisting}
+
+Функция выполняет соответствующую операцию над числами. В случае деления на ноль результат становится \texttt{Nothing}, а в лог добавляется сообщение об ошибке. Для успешных операций в лог записывается информация о выполненном вычислении.
+
+\subsubsection*{Обработка строки}
+
+Функция \texttt{processLine} объединяет парсинг и вычисление:
+
+\begin{lstlisting}
+processLine :: String -> Calculation
+processLine line = 
+case parseExpr line of
+Just expr -> calculateExpr expr
+Nothing -> writer (Nothing, ["Invalid line: " ++ line])
+\end{lstlisting}
+
+Если строка успешно парсится в выражение, выполняется вычисление. В противном случае возвращается \texttt{Nothing} с сообщением о невалидной строке в логе.
+
+\subsection{Работа с файлами без do-нотации}
+
+Для чтения файла используется явное управление дескриптором:
+
+\begin{lstlisting}
+processFile :: FilePath -> IO [String]
+processFile path = 
+openFile path ReadMode >>= \handle ->
+readAllLines handle [] >>= \lines' ->
+hClose handle >>
+let calculations = map processLine lines'
+resultsWithLogs = map runWriter calculations
+allLogs = concatMap snd resultsWithLogs
+formattedLogs = zipWith formatLine [1..] (zip lines' resultsWithLogs)
+in return (allLogs ++ formattedLogs)
+where
+readAllLines :: Handle -> [String] -> IO [String]
+readAllLines handle acc =
+hIsEOF handle >>= \eof ->
+if eof
+then return (reverse acc)
+else hGetLine handle >>= \line ->
+readAllLines handle (line : acc)
+
+formatLine n (line, (result, _)) =
+"Line " ++ show n ++ ": '" ++ line ++ "' -> " ++ 
+case result of
+Just r -> "Result: " ++ show r
+Nothing -> "Invalid"
+\end{lstlisting}
+
+Функция \texttt{processFile} открывает файл, рекурсивно читает все строки, закрывает файл, затем обрабатывает каждую строку с помощью \texttt{processLine}. Результаты и логи собираются, форматируются и возвращаются в виде списка строк. Вспомогательная функция \texttt{readAllLines} реализует рекурсивное чтение файла до достижения конца.
+
+\subsection{Главная функция}
+
+\begin{lstlisting}
+main :: IO ()
+main =
+putStrLn "  Mathematical Operations Calculator" >>
+putStrLn "" >>
+processFile "operations.txt" >>= \logs ->
+putStrLn "Execution Log:" >>
+putStrLn (formatResult logs) >>
+putStrLn "" >>
+putStrLn "Statistics:" >>
+putStrLn ("Successful operations: " ++ show (countPrefix "Success:" logs)) >>
+putStrLn ("Invalid lines: " ++ show (countPrefix "Invalid line:" logs)) >>
+putStrLn ("Errors: " ++ show (countPrefix "Error:" logs))
+where
+countPrefix prefix lst = length (filter (isPrefix prefix) lst)
+\end{lstlisting}
+
+Функция \texttt{main} выводит заголовок, обрабатывает файл \texttt{operations.txt}, выводит все логи и статистику по выполненным операциям. Вспомогательная функция \texttt{countPrefix} подсчитывает количество строк в логах, начинающихся с определённого префикса, что позволяет получить статистику по типам операций.
+
+
+\newpage
+\section{Тестирование}
+
+Для проверки работоспособности программы подготовлен файл \texttt{operations.txt}:
+
+\begin{verbatim}
+10 + 5
+10 - 5
+10 * 5
+10 / 5
+10 / 0
+10 ++ 5
+10 + five
+\end{verbatim}
+
+Результат выполнения программы:
+
+\begin{verbatim}
+Mathematical Operations Calculator
+
+Execution Log:
+Success: 10 + 5 = 15
+Success: 10 - 5 = 5  
+Success: 10 * 5 = 50
+Success: 10 / 5 = 2
+Error: division by zero in 10 / 0
+Invalid line: 10 ++ 5
+Invalid line: 10 + five
+
+Statistics:
+Successful operations: 4
+Invalid lines: 2
+Errors: 1
+\end{verbatim}
+
+Программа корректно обрабатывает валидные арифметические операции, фиксирует ошибку деления на ноль и отмечает невалидные строки (некорректный оператор и нечисловые аргументы).
+
+\newpage
+\section*{Заключение}
+
+В ходе работы была разработана программа на языке Haskell, выполняющая арифметические операции, считываемые из файла, с использованием монады \texttt{Writer} для логирования. Были выполнены следующие задачи:
+
+\begin{itemize}
+\item Определены типы данных для представления выражений и результатов.
+\item Реализована монада \texttt{Writer} для накопления логов успешных и ошибочных операций.
+\item Организован парсинг строк и вычисление выражений с обработкой ошибок.
+\item Реализовано чтение файла с явным управлением дескриптором без использования \texttt{do}-нотации.
+\item Программа собрана с помощью \texttt{stack} и протестирована на различных входных данных.
+\end{itemize}
+
+Программа демонстрирует эффективное использование монады \texttt{Writer} для разделения логики вычислений и механизма логирования, что повышает чистоту кода и облегчает отладку.
+
+
+
+\newpage
+\addcontentsline{toc}{section}{Список литературы}
+
+\vspace{-1.5cm}
+\begin{thebibliography}{0}
+\bibitem{hod}
+Haskell Official Documentation -- официальная документация по языку Haskell [Электронный ресурс]. 	 
+\href {https://www.haskell.org/documentation/}{https://www.haskell.org/documentation/}
+\bibitem{learn} Миран Липовача. Изучай Haskell во имя добра! / Пер. с англ. Леушина Д., Синицына А., Арсанукаева Я. — М.: ДМК Пресс, 2012. — 490 с.
+\bibitem{docs} Официальная документация Haskell: \url{https://www.haskell.org} [Дата обращения: 17.11.2025]
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,11 @@
+.DS_Store
+.vscode/
+.stack-work/
+*.hi
+*.o
+lab2/hello
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.toc

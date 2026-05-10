@@ -1,0 +1,385 @@
+\documentclass[a4paper, final]{article}
+%\usepackage{literat} % Нормальные шрифты
+\usepackage[14pt]{extsizes} % для того чтобы задать нестандартный 14-ый размер шрифта
+\usepackage{tabularx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage[left=25mm, top=20mm, right=20mm, bottom=20mm, footskip=10mm]{geometry}
+\usepackage{ragged2e} %для растягивания по ширине
+\usepackage{setspace} %для межстрочного интервала
+\usepackage{moreverb} %для работы с листингами
+\usepackage{indentfirst} % для абзацного отступа
+\usepackage{moreverb} %для печати в листинге исходного кода программ
+\usepackage{pdfpages} %для вставки других pdf файлов
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{afterpage}
+\usepackage{longtable}
+\usepackage{float}
+
+% \usepackage[paper=A4,DIV=12]{typearea}
+\usepackage{pdflscape}
+% \usepackage{lscape}
+
+\usepackage{array}
+\usepackage{multirow}
+
+\renewcommand\verbatimtabsize{4\relax}
+\renewcommand\listingoffset{0.2em} %отступ от номеров строк в листинге
+\renewcommand{\arraystretch}{1.4} % изменяю высоту строки в таблице
+\usepackage[font=small, singlelinecheck=false, justification=centering, format=plain, labelsep=period]{caption} %для настройки заголовка таблицы
+\usepackage{listings} %листинги
+\usepackage{xcolor} % цвета
+\usepackage{hyperref}% для гиперссылок
+\usepackage{enumitem} %для перечислений
+
+\setlist[enumerate,itemize]{leftmargin=1.2cm} %отступ в перечислениях
+
+\hypersetup{colorlinks,
+	allcolors=[RGB]{010 090 200}} %красивые гиперссылки (не красные)
+
+% подгружаемые языки — подробнее в документации listings
+\lstloadlanguages{Haskell}
+\lstset{tabsize=2,
+	breaklines,
+	basicstyle=\footnotesize,
+	columns=fullflexible,
+	flexiblecolumns,
+	numbers=left,
+	numberstyle={\footnotesize},
+	keywordstyle=\color{blue},
+	inputencoding=utf8,
+	extendedchars=true,
+	literate={а}{{\cyra}}1 {б}{{\cyrb}}1 {в}{{\cyrv}}1 {г}{{\cyrg}}1 {д}{{\cyrd}}1 {е}{{\cyre}}1 {ё}{{\"e}}1 {ж}{{\cyrzh}}1 {з}{{\cyrz}}1 {и}{{\cyri}}1 {й}{{\cyrishrt}}1 {к}{{\cyrk}}1 {л}{{\cyrl}}1 {м}{{\cyrm}}1 {н}{{\cyrn}}1 {о}{{\cyro}}1 {п}{{\cyrp}}1 {р}{{\cyrr}}1 {с}{{\cyrs}}1 {т}{{\cyrt}}1 {у}{{\cyru}}1 {ф}{{\cyrf}}1 {х}{{\cyrh}}1 {ц}{{\cyrc}}1 {ч}{{\cyrch}}1 {ш}{{\cyrsh}}1 {щ}{{\cyrshch}}1 {ъ}{{\cyrhard}}1 {ы}{{\cyry}}1 {ь}{{\cyrsoft}}1 {э}{{\cyre}}1 {ю}{{\cyryu}}1 {я}{{\cyrya}}1 {А}{{\cyrA}}1 {Б}{{\cyrB}}1 {В}{{\cyrV}}1 {Г}{{\cyrG}}1 {Д}{{\cyrD}}1 {Е}{{\cyrE}}1 {Ё}{{\"E}}1 {Ж}{{\cyrZH}}1 {З}{{\cyrZ}}1 {И}{{\cyrI}}1 {Й}{{\cyrISHRT}}1 {К}{{\cyrK}}1 {Л}{{\cyrL}}1 {М}{{\cyrM}}1 {Н}{{\cyrN}}1 {О}{{\cyrO}}1 {П}{{\cyrP}}1 {Р}{{\cyrR}}1 {С}{{\cyrS}}1 {Т}{{\cyrT}}1 {У}{{\cyrU}}1 {Ф}{{\cyrF}}1 {Х}{{\cyrH}}1 {Ц}{{\cyrC}}1 {Ч}{{\cyrCH}}1 {Ш}{{\cyrSH}}1 {Щ}{{\cyrSHCH}}1 {Ъ}{{\cyrHARD}}1 {Ы}{{\cyrY}}1 {Ь}{{\cyrSOFT}}1 {Э}{{\cyrE}}1 {Ю}{{\cyrYU}}1 {Я}{{\cyrYA}}1
+}
+
+\textheight=24cm % высота текста
+\textwidth=16cm % ширина текста
+\oddsidemargin=0pt % отступ от левого края
+\topmargin=-1.5cm % отступ от верхнего края
+\parindent=24pt % абзацный отступ
+\parskip=5pt % интервал между абзацами
+\tolerance=2000 % терпимость к "жидким" строкам
+\flushbottom % выравнивание высоты страниц
+
+% Настройка листингов
+\lstset{
+	language=Haskell,
+	extendedchars=\true,
+	inputencoding=utf8,
+	keepspaces=true,
+	captionpos=t,
+}
+
+\begin{document} % начало документа
+	
+	% НАЧАЛО ТИТУЛЬНОГО ЛИСТА
+	\begin{center}
+		\hfill \break
+		\hfill \break
+		\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+			федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+		\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+		\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+		\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+		
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\large{Отчет по курсовой работе}\\
+		\large{по дисциплине}\\
+		\large{<<Функциональное программирование>>}\\
+		\large{Вариант 16}\\
+		\large{Тема: Модификатор изображений}\\
+		\hfill \break
+		
+	\end{center}
+	
+	\small{ 
+		\begin{tabular}{lrrl}
+			\!\!\!Студент, & \hspace{2cm} & & \\
+			\!\!\!группы 5130201/30102 & \hspace{2cm} & \underline{\hspace{3cm}} & Санько В. В. \\\\
+			\!\!\!Преподаватель,\\ \hspace{-5pt}к. т. н., доц. & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+			&&\hspace{4cm}
+		\end{tabular}
+		\begin{flushright}
+			<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2025г.
+		\end{flushright}
+	}
+	
+	\hfill \break
+	\begin{center} \small{Санкт-Петербург, 2025} \end{center}
+	\thispagestyle{empty} 
+	
+	% КОНЕЦ ТИТУЛЬНОГО ЛИСТА
+	\newpage
+	
+	\tableofcontents
+		\newpage
+	\section {Постановка задачи}
+	
+	Целью курсовой работы является разработка программного комплекса для обработки растровых изображений на языке Haskell. Работа разделена на две части:
+	
+	\begin{enumerate}
+		\item \textbf{Часть 1:} Воспроизведение решения задачи обработки изображений, описанной в главах 12 и 13 книги Филиппа Хагенлохера «Haskell from the Very Beginning».
+		Требуется:
+		\begin{itemize}
+			\item Реализовать парсер формата PNM (PPM/PGM) с использованием комбинаторных библиотек.
+			\item Использовать обобщенные алгебраические типы данных (GADT) для типизации изображений.
+			\item Реализовать параллельную обработку данных.
+		\end{itemize}
+		
+		\item \textbf{Часть 2:} Разработка собственного синтаксического анализатора и графического редактора.
+		Задачи:
+		\begin{itemize}
+			\item Разработать синтаксический анализатор файлов формата BMP (24-bit). Разобрать заголовок (File Header, DIB Header) и содержимое файла.
+			\item Реализовать графические фильтры: инверсия, пороговое черно-белое преобразование, усиление резкости (матричная свертка), изменение яркости и контрастности, отражение по горизонтали и вертикали.
+			\item Реализовать эффект «Глитч» (случайное смещение участков изображения).
+			\item Реализовать функцию рирпроекции (хромакей): наложение изображения на фон с использованием маски по цвету (Green Screen / Blue Screen) с настраиваемым допуском.
+			\item Организовать консольный пользовательский интерфейс (CLI) для взаимодействия с программой.
+		\end{itemize}
+	\end{enumerate}
+	
+	\newpage
+	\section{Особенности реализации}
+	Согласно заданию, решение разбито на два независимых проекта \texttt{stack}. Для работы с бинарными данными и обеспечения высокой производительности использовались библиотеки \texttt{bytestring}, \texttt{binary} и \texttt{vector}.
+	
+	\subsection{Часть 1: Реализация по книге Ф. Хагенлохера}
+	
+	В соответствии с главой 12 книги, для разбора текстовых и бинарных заголовков формата PNM была выбрана библиотека \texttt{attoparsec}, так как она обеспечивает высокую производительность и удобный интерфейс комбинаторов.
+	
+	В соответствии с главой 13, для представления данных использован подход GADT (Generalized Algebraic Data Types). Это позволяет определить единый тип \texttt{PNM}, конструкторы которого (\texttt{Greyscale} и \texttt{RGB}) явно кодируют формат данных, предотвращая ошибки типа ``Return-type polymorphism''.
+	
+	Для демонстрации возможностей многопоточности Haskell применена библиотека \texttt{parallel}. Реализована функция \texttt{processImageParallel}, которая разбивает вектор пикселей на фрагменты (чанки) и обрабатывает их параллельно на доступных ядрах процессора, используя стратегию \texttt{parList rdeepseq}.
+	
+	\subsection{Часть 2: Модификатор изображений BMP}
+	
+	\subsubsection{Типы данных}
+	Для хранения изображения используется структура \texttt{Image}, содержащая ширину, высоту и плоский вектор байтов (\texttt{Word8}). Использование \texttt{Data.Vector.Storable} обеспечивает доступ к пикселям за время $O(1)$ и эффективное использование памяти, в отличие от списков.
+	
+	\begin{lstlisting}[caption={Определение типа Image}, label={lst:image_type}]
+		module Types where
+		
+		import qualified Data.Vector.Storable as V
+		import Data.Word (Word8)
+		
+		data Image = Image {
+			imgWidth  :: Int,
+			imgHeight :: Int,
+			imgData   :: V.Vector Word8 
+		} deriving (Show, Eq)
+		
+		data RGB = RGB { r :: Word8, g :: Word8, b :: Word8 } 
+		deriving (Show, Eq)
+	\end{lstlisting}
+	
+	\subsubsection{Синтаксический анализ BMP}
+	Реализован собственный парсер формата BMP с использованием монады \texttt{Get} из библиотеки \texttt{Data.Binary}.
+	
+	Особенности реализации парсера:
+	\begin{itemize}
+		\item Чтение сигнатуры ``BM'' и заголовков (File Header, DIB Header).
+		\item Проверка битности (поддержка 24-bit TrueColor).
+		\item Учет выравнивания строк (Padding): каждая строка в BMP дополняется нулями до длины, кратной 4 байтам.
+		\item Обработка порядка строк: BMP хранит данные снизу-вверх, поэтому при чтении строки разворачиваются.
+	\end{itemize}
+	
+	\begin{lstlisting}[caption={Фрагмент парсера BMP}, label={lst:bmp_parser}]
+		parseBMP :: Get Image
+		parseBMP = do
+		sig <- getWord16le -- "BM"
+		skip 8 
+		offset <- getWord32le
+		headerSize <- getWord32le
+		w <- getWord32le
+		h <- getWord32le
+
+		
+		let rowSize = widthInt * 3
+		let padding = (4 - (rowSize `mod` 4)) `mod` 4
+		
+		rawRows <- replicateM heightInt $ do
+		row <- getByteString rowSize
+		skip padding 
+		return row
+		
+		let flatData = BS.concat (reverse rawRows) 
+		return $ Image widthInt heightInt (V.fromList $ BS.unpack flatData)
+	\end{lstlisting}    
+	
+	\subsubsection{Реализация фильтров}
+	В модуле \texttt{Filters.hs} реализованы алгоритмы обработки изображений.
+	
+	\textbf{Пороговое черно-белое преобразование (Threshold):}
+	Сравнение значения каждого канала с заданным порогом.
+	
+	\begin{lstlisting}[caption={Реализация порогового преобразования}, label={lst:bw}]
+		thresholdBW :: Int -> Image -> Image
+		thresholdBW level (Image w h v) = Image w h (V.map check v)
+		where
+		lvl = fromIntegral level
+		check x = if x > lvl then 255 else 0
+	\end{lstlisting}
+	
+	\textbf{Усиление резкости (Sharpen):}
+	Реализовано через свертку (convolution) с матрицей ядра:
+	$$
+	\begin{pmatrix}
+		0 & -1 & 0 \\
+		-1 & 5 & -1 \\
+		0 & -1 & 0 
+	\end{pmatrix}
+	$$
+	Для каждого пикселя вычисляется взвешенная сумма его соседей.
+	
+	\textbf{Эффект «Глитч» (Glitch):}
+	Алгоритм случайным образом выбирает два прямоугольных блока изображения и меняет их местами, создавая эффект цифрового искажения. Используется монада \texttt{IO} для генерации случайных координат.
+	
+	\subsubsection{Рирпроекция (Chroma Key)}
+	Реализована функция наложения переднего плана (\texttt{fg}) на фон (\texttt{bg}).
+	Алгоритм проверяет Евклидово расстояние между цветом текущего пикселя и ключевым цветом (хромакеем). Если расстояние меньше заданного допуска (\texttt{tolerance}), пиксель берется из фона, иначе — из переднего плана.
+	
+	\begin{lstlisting}[caption={Логика хромакея}, label={lst:chroma}]
+		isKey :: (Word8, Word8, Word8) -> RGB -> Int -> Bool
+		isKey (b, g, r) (RGB kr kg kb) tol =
+		let dist = sqrt (db*db + dg*dg + dr*dr)
+		in dist < fromIntegral tol
+		
+		chromaKey :: Image -> Image -> RGB -> Int -> Image
+		chromaKey fg bg keyColor tol = ...
+
+	\end{lstlisting}
+	
+	\subsubsection{Взаимодействие с пользователем}
+	Реализован цикл обработки команд (\texttt{REPL}) в модуле \texttt{Main.hs}. Программа хранит текущее состояние (\texttt{AppState}), содержащее загруженное изображение. Поддерживаются команды загрузки, сохранения, применения эффектов и генерации тестовых изображений.
+	
+	\newpage
+	\section {Результаты работы программы}
+	\subsection{Интерфейс программы}
+	Взаимодействие осуществляется через консоль. Пользователь может загружать файлы, применять цепочки эффектов и сохранять результат.
+	
+	Пример сессии работы:
+	\begin{verbatim}
+		> gen 400 300
+		Generating test gradient 400x300...
+		Generated.
+		> sharp
+		Applying Sharpen filter...
+		Sharpening applied.
+		> save test_sharp.bmp
+		Saving to test_sharp.bmp...
+		Saved.
+	\end{verbatim}
+	
+		\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.5\linewidth]{/Users/Seva/Desktop/1.png}
+		\caption{Исходное изображение}
+		\label{fig:chroma}
+	\end{figure}
+	
+	Реализована обработка ошибок: программа корректно сообщает о неверном формате файла, отсутствии файла или неверных аргументах.
+	
+	\newpage
+	\subsection{Демонстрация эффектов}
+	Ниже представлены результаты работы фильтров на тестовом изображении (градиент и фотографии).
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/2.png}
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/3.png}
+		\caption{Слева: инверсия. Справа: пороговое Ч/Б.}
+		\label{fig:effects}
+	\end{figure}
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/4.png}
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/5.png}
+	 	\caption{Слева: эффект Глитч. Справа: вертикальный поворот.}
+	 	\label{fig2:effects}
+	 \end{figure}
+	 
+	 \begin{figure}[h!]
+	 	\centering
+	 	\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/6.png}
+	 	\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/7.png}
+	 	\caption{Слева: горизонтальный поворот. Справа: резкость.}
+	 	\label{fig3:effects}
+	 \end{figure}
+	 
+	 	\newpage
+	 \mbox{}
+	 
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/8.png}
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/9.png}
+		\caption{Слева: контраст. Справа: хромакея.}
+		\label{fig4:effects}
+	\end{figure}
+		
+			На примерах видно как работает последовательные операции и что их эффекты накладываются друг на друга. 
+		
+	\newpage
+	\subsection{Рирпроекция (Хромакей)}
+	Реализован механизм замены фона. Пользователь может выбрать пресет цвета (green/blue) или задать RGB вручную.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.5\linewidth]{/Users/Seva/Desktop/1.png}
+		\caption{Фон хромакей}
+		\label{fig5:chroma}
+	\end{figure}
+	
+	Пример команды:
+	\texttt{chroma bg.bmp green 100} — накладывает текущее изображение на \texttt{bg.bmp}, удаляя зеленый цвет с допуском 100.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/11.png}
+		\includegraphics[width=0.45\linewidth]{/Users/Seva/Desktop/12.png}
+		\caption{Слева: изображение до. Справа: изображение после.}
+		\label{fig6:effects}
+	\end{figure}
+
+
+	\newpage
+	\section*{Заключение}
+	\addcontentsline{toc}{section}{Заключение}
+	В рамках курсовой работы были разработаны два проекта на языке Haskell для обработки растровой графики.
+	
+	В первой части были освоены принципы комбинаторного парсинга (Attoparsec), использование GADT для строгой типизации и методы параллельного программирования для ускорения обработки изображений формата PNM.
+	
+	Во второй части был создан полноценный графический модификатор для формата BMP. Ключевые результаты:
+	\begin{itemize}
+		\item Написан собственный парсер бинарного формата BMP, корректно обрабатывающий заголовки и выравнивание.
+		\item Использованы эффективные структуры данных (\texttt{Data.Vector.Storable}) для работы с пикселями, что обеспечило высокую скорость работы фильтров.
+		\item Реализован широкий спектр алгоритмов: от простой инверсии до матричной свертки (резкость) и композитинга (хромакей).
+		\item Создан удобный консольный интерфейс с поддержкой генерации тестовых данных.
+	\end{itemize}
+	
+	Полученные навыки работы с бинарными данными, монадами состояния и векторами демонстрируют возможности Haskell в области системного программирования и обработки медиаданных.
+	
+	\newpage
+	\section*{Список литературы}
+	\addcontentsline{toc}{section}{Список литературы}
+	
+	\vspace{-1.5cm}
+	\begin{thebibliography}{0}
+		\bibitem{hagenlocher}
+		Philipp Hagenlocher. Haskell from the Very Beginning. -- Leanpub, 2020.
+		
+		\bibitem{bmp_spec}
+		BMP File Format. URL: \url{https://en.wikipedia.org/wiki/BMP_file_format} (дата обращения: 15.05.2025).
+		
+		\bibitem{hackage}
+		Hackage -- binary: Binary serialisation for Haskell values using lazy ByteStrings. URL: \url{https://hackage.haskell.org/package/binary}, (дата обращения: 15.05.2025).
+		
+		\bibitem{vector}
+		Hackage -- vector: Efficient Arrays. URL: \url{https://hackage.haskell.org/package/vector}, (дата обращения: 15.05.2025).
+	\end{thebibliography}
+\end{document}

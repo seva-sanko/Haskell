@@ -1,0 +1,754 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{amssymb}
+
+\geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
+
+\definecolor{codebg}{rgb}{0.95,0.95,0.95}
+\definecolor{keyword}{rgb}{0,0,1}
+\definecolor{string}{rgb}{0.64,0.08,0.08}
+\definecolor{comment}{rgb}{0,0.5,0}
+
+\lstset{
+	language=Haskell,
+	backgroundcolor=\color{codebg},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{keyword},
+	commentstyle=\color{comment},
+	stringstyle=\color{string},
+	showstringspaces=false,
+	breaklines=true,
+	frame=single,
+	captionpos=b,
+	numbers=left,
+	numberstyle=\tiny,
+	stepnumber=1,
+	numbersep=5pt
+}
+
+
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+\begin{document}
+	
+	\begin{center}
+		\hfill \break
+		\hfill \break
+		\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+			федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+		\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+		\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+		\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+		
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\large{Отчет по курсовой работе }\\
+		\large{по дисциплине}\\
+		\large{<<Функциональное программирование>>}\\
+		\large{Вариант 16}\\
+		\hfill \break
+	\end{center}
+	
+	\vspace{3cm}
+	\small{ 
+		\begin{tabular}{lrrl}
+			\!\!\!Студент, & \hspace{2cm} & & \\
+			\!\!\!группы 5130201/30102 & \hspace{2cm} & \underline{\hspace{3cm}} &Санько В. В. \\\\
+			\!\!\!Преподаватель\\ \hspace{-5pt} & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+			&&\hspace{4cm}
+		\end{tabular}
+		\begin{flushright}
+			<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2026г.
+		\end{flushright}
+	}
+	
+	\hfill \break
+	\vspace{3cm}
+	\begin{center} \small{Санкт-Петербург, 2026} \end{center}
+	\thispagestyle{empty}
+	
+	\newpage
+	
+	\tableofcontents
+	
+	\newpage
+	\section*{Введение}
+	
+	Обработка цифровых изображений связана с изменением графических файлов для достижения какого-то визуального эффекта. Основные операции включают в себя применение фильтров и комбинирование нескольких изображений в одно.
+	В рамках работы рассматриваются файлы двух типов: форматы семей-
+	ства PNM (Portable Any Мар) и формат PNG (Portable Network Graphics).
+	Форматы PNM представляют собой простое, не использующее сжатие семейство растровых форматов, включающее РВМ (чёрно-белые изображения), PGM (изображения в оттенках серого) и РРМ (цветные изображения). Формат PNG поддерживает сжатие без потерь, прозрачность и широкий диапазон цветовых глубин.
+	
+	Важной составляющей обработки является применение графических эф-фектов. К ним относятся как инструменты коррекции (изменение яркости, контрастности, резкости), так и художественные преобразования (инверсия цветов, пикселизация, размытие, глитч-эффект).
+	
+	Отдельное внимание в работе уделено технологии рирпроекции - процессу компоновки нескольких изображений в одно. Эта операция включает выбор фонового изображения и последовательное наложение на него допол-нительных слоёв. Для корректного объединения слоёв используется метод хромакея, или цветовой маски, который позволяет удалять области определённого цвета и заменять их прозрачностью или другим изображением.
+	
+	\newpage
+	\section{Постановка задачи}
+	Цель работы: Написать систему для обработки изображений.
+	
+	\subsection*{Цели разработки}
+	\begin{enumerate}
+		\item Реализовать синтаксический анализатор для форматов PNM (PBM, PGM, PPM) с поддержкой ASCII и бинарных версий и корректным разбором заголовков и данных изображений.
+		\item Реализовать синтаксический анализатор с обработкой структуры чанков, поддержкой различных цветовых моделей и декодированием сжатых данных.
+		\item Обеспечить применение графических эффектов обработки изображения: поворот, масштабирование, отражение, коррекция яркости и контрастности, фильтры размытия и резкости, преобразования в сепию и черно-белое.
+		\item Реализовать функцию рирпроекции для композиции изображений с поддержкой слоев, индивидуальных трансформаций, масок и заданного порядка наложения на фоновое изображение.
+		\item Реализовать пользовательский интерфейс с панелью управления эффектами.
+		\item Обеспечить надежную обработку ошибок при чтении файлов, неверных входных данных и исключительных ситуациях в процессе обработки.
+		\item Реализовать сохранение обработанных изображений с сохранением цветовых характеристик и прозрачности.
+	\end{enumerate}
+	
+	
+	\newpage
+	\section{Реализация парсера BMP формата}
+	
+	\subsection{Структура BMP файла}
+	
+	BMP (Bitmap) - растровый формат хранения изображений, состоящий из:
+	
+	\begin{enumerate}
+		\item Заголовка файла (BITMAPFILEHEADER)
+		\item Заголовка изображения (BITMAPINFOHEADER)
+		\item Цветовой палитры (для 1, 4, 8 битных изображений)
+		\item Данных пикселей
+	\end{enumerate}
+	
+	\subsection{Типы данных для представления BMP}
+	
+	Для представления BMP файла в памяти были созданы следующие типы данных:
+	
+	\begin{lstlisting}[caption=Основные типы данных для работы с BMP, label=lst:bmp-types]
+		data Color = Color
+		{ red   :: Word8
+			, green :: Word8
+			, blue  :: Word8
+			, alpha :: Word8  
+		} deriving (Show, Eq)
+		
+
+		data BMPHeader = BMPHeader
+		{ bmpSignature   :: Word16  
+			, bmpFileSize    :: Word32
+			, bmpReserved1   :: Word16
+			, bmpReserved2   :: Word16
+			, bmpPixelOffset :: Word32  
+		} deriving (Show, Eq)
+		
+		data DIBHeader = DIBHeader
+		{ dibHeaderSize     :: Word32 
+			, dibWidth          :: Int32  
+			, dibHeight         :: Int32  
+			, dibPlanes         :: Word16 
+			, dibBitsPerPixel   :: Word16 
+			, dibCompression    :: Word32 
+			, dibImageSize      :: Word32 
+			, dibXPixelsPerM    :: Int32   
+			, dibYPixelsPerM    :: Int32  
+			, dibColorsUsed     :: Word32  
+			, dibColorsImportant :: Word32 
+		} deriving (Show, Eq)
+		
+
+		data BMP = BMP
+		{ bmpHeader   :: BMPHeader
+			, dibHeader   :: DIBHeader
+			, colorTable  :: Maybe [Color]  
+			, pixelData   :: PixelData
+		} deriving (Show, Eq)
+	\end{lstlisting}
+	
+	Представленный код демонстрирует ключевые принципы функционального программирования в контексте обработки графических данных. Тип Color использует строго типизированные 8-битные значения для каждой цветовой компоненты, что обеспечивает точное соответствие стандарту sRGB. Включение компоненты альфа-канала позволяет работать с прозрачностью, что особенно важно для 32-битных изображений и композиции слоев.
+	
+	\subsection{Функции чтения данных}
+	
+	Для корректного чтения данных в формате Little Endian реализованы специальные функции:
+	
+	\begin{lstlisting}[caption=Функции чтения Little Endian, label=lst:read-le]
+		readWord16LE :: B.ByteString -> Int -> Word16
+		readWord16LE bs offset =
+		let b1 = fromIntegral (B.index bs offset) :: Word16
+		b2 = fromIntegral (B.index bs (offset + 1)) :: Word16
+		in b1 .|. (b2 `shiftL` 8)
+		
+		readWord32LE :: B.ByteString -> Int -> Word32
+		readWord32LE bs offset =
+		let b1 = fromIntegral (B.index bs offset) :: Word32
+		b2 = fromIntegral (B.index bs (offset + 1)) :: Word32
+		b3 = fromIntegral (B.index bs (offset + 2)) :: Word32
+		b4 = fromIntegral (B.index bs (offset + 3)) :: Word32
+		in b1 .|. (b2 `shiftL` 8) .|. (b3 `shiftL` 16) .|. (b4 `shiftL` 24)
+	\end{lstlisting}
+	
+	Использование fromIntegral необходимо для безопасного повышения разрядности: 8-битный байт преобразуется в 16-битное или 32-битное целое перед выполнением сдвига. Без этого преобразования сдвиг битов за пределы 8-битного диапазона привел бы к потере данных. Типовые аннотации явно указывают целевой тип, что помогает компилятору разрешить перегруженную функцию fromIntegral.
+	
+	\subsection{Главная функция парсинга}
+	
+	Основной алгоритм парсинга последовательно читает все части BMP файла:
+	
+	\begin{lstlisting}[caption=Основная функция парсинга BMP, label=lst:main-parser]
+		parseBMP :: B.ByteString -> Maybe BMP
+		parseBMP bs = do
+		(bmpHeader, offset1) <- parseBMPHeader bs
+		(dibHeader, offset2) <- parseDIBHeader bs offset1
+		
+		let width = fromIntegral $ dibWidth dibHeader
+		let height = fromIntegral $ dibHeight dibHeader
+		let bitsPerPixel = dibBitsPerPixel dibHeader
+		
+		(colorTable, offset3) <- case bitsPerPixel of
+		1  -> case readColorTable bs offset2 2 of
+		Just (colors, offset) -> return (Just colors, offset)
+		Nothing -> return (Nothing, offset2)
+		4  -> case readColorTable bs offset2 16 of
+		Just (colors, offset) -> return (Just colors, offset)
+		Nothing -> return (Nothing, offset2)
+		8  -> case readColorTable bs offset2 256 of
+		Just (colors, offset) -> return (Just colors, offset)
+		Nothing -> return (Nothing, offset2)
+		\_  -> return (Nothing, offset2)
+		
+		let pixelOffset = fromIntegral $ bmpPixelOffset bmpHeader
+		
+		pixelData <- case bitsPerPixel of
+		1  -> Monochrome <$> readMonochromeData bs pixelOffset width height
+		24 -> RGB24 <$> readRGB24Data bs pixelOffset width height
+		32 -> RGB32 <$> readRGB32Data bs pixelOffset width height
+		_  -> Nothing  
+		
+		return BMP
+		{ bmpHeader = bmpHeader
+			, dibHeader = dibHeader
+			, colorTable = colorTable
+			, pixelData = pixelData
+		}
+	\end{lstlisting}
+	
+	Эта функция является ядром всей системы загрузки BMP файлов. Она последовательно выполняет четыре ключевых этапа: чтение заголовка файла, чтение DIB заголовка, чтение цветовой палитры (при необходимости) и чтение данных пикселей. Каждый этап инкапсулирован в отдельной функции, что обеспечивает модульность и упрощает тестирование.
+	
+	\subsection{Чтение различных форматов данных}
+	
+	Для каждого типа пиксельных данных реализованы отдельные функции чтения:
+	
+	\begin{lstlisting}[caption=Чтение 24-битных RGB данных, label=lst:read-rgb24]
+		readRGB24Data :: B.ByteString -> Int -> Int -> Int -> Maybe [[Color]]
+		readRGB24Data bs offset width height = do
+		let rowSize = (width * 3 + 3) `div` 4 * 4 
+		let totalSize = rowSize * abs height
+		guard (B.length bs >= offset + totalSize)
+		
+		let rows = [ [ Color (B.index bs (offset + y*rowSize + x*3 + 2))
+		(B.index bs (offset + y*rowSize + x*3 + 1))
+		(B.index bs (offset + y*rowSize + x*3))
+		255
+		| x <- [0..width-1] ]
+		| y <- [0..abs height-1] ]
+		
+
+		return $ if height < 0 then rows else reverse rows
+		
+		
+	\end{lstlisting}
+	
+	Данная функция демонстрирует несколько важных аспектов работы с форматом BMP. Вычисление rowSize является критически важным — каждая строка должна занимать количество байт, кратное 4. Формула (width * 3 + 3) `div` 4 * 4 округляет размер строки вверх до ближайшего числа, кратного 4. Без этого выравнивания последующие строки будут прочитаны со смещением.
+	
+	\subsection{Сериализация BMP файлов}
+	
+	Для сохранения обработанных изображений реализованы функции сериализации:
+	
+	\begin{lstlisting}[caption=Сериализация BMP файлов, label=lst:serialize-bmp]
+		serializeRGB24Data :: [[Color]] -> B.ByteString
+		serializeRGB24Data rows =
+		let height = length rows
+		width = length (head rows)
+		rowSize = (width * 3 + 3) `div` 4 * 4
+		padding = B.replicate (rowSize - width * 3) 0
+		
+		serializeRow row = B.concat
+		[ B.concat (map (serializeColor False) row)
+		, padding
+		]
+		in B.concat (map serializeRow (reverse rows))  -- Bottom-up
+		
+		saveBMP :: FilePath -> BMP -> IO ()
+		saveBMP filepath bmp = do
+		let updatedBMP = updateFileSize bmp
+		let bs = serializeBMP updatedBMP
+		B.writeFile filepath bs
+	\end{lstlisting}
+	
+	Функция serializeRGB24Data выполняет преобразование матрицы цветов в последовательность байт, готовую для записи в файл. Критически важным является reverse rows — это преобразование порядка строк из top-down (как удобно для обработки) в bottom-up (как требует спецификация BMP). Пропуск этого этапа приведет к сохранению изображения в перевернутом виде.
+	
+	
+	\newpage
+	\section{Реализация хромакея}
+	
+	\subsection{Типы данных для хромакея}
+	
+	Хромакей реализован как настраиваемая система удаления фона по цвету:
+	
+	\begin{lstlisting}[caption=Типы данных для хромакея, label=lst:chroma-types]
+		data ChromaKey = ChromaKey
+		defaultGreenScreen :: ChromaKey
+		defaultGreenScreen = ChromaKey
+		{ targetColor = Color 0 255 0 255
+			, toleranceR  = 50
+			, toleranceG  = 50
+			, toleranceB  = 50
+			, softEdge    = 10
+		}
+		
+		defaultBlueScreen :: ChromaKey
+		defaultBlueScreen = ChromaKey
+		{ targetColor = Color 0 0 255 255
+			, toleranceR  = 50
+			, toleranceG  = 50
+			, toleranceB  = 50
+			, softEdge    = 10
+		}
+	\end{lstlisting}
+	
+	Представленная структура ChromaKey инкапсулирует все параметры, необходимые для качественного удаления фона. Поле targetColor определяет эталонный цвет, который следует заменить на прозрачность. Поля toleranceR, toleranceG, toleranceB задают допустимые отклонения по каждой цветовой компоненте — увеличение этих значений делает маску более "агрессивной", захватывая больше оттенков целевого цвета.
+	
+	\subsection{Алгоритм создания маски}
+	
+	Алгоритм вычисляет расстояние между цветом пикселя и целевым цветом, создавая маску прозрачности:
+	
+	\begin{lstlisting}[caption=Алгоритм создания маски хромакея, label=lst:chroma-algorithm]
+		colorDistance :: Color -> Color -> Double
+		colorDistance c1 c2 =
+		let dr = fromIntegral (red c1) - fromIntegral (red c2)
+		dg = fromIntegral (green c1) - fromIntegral (green c2)
+		db = fromIntegral (blue c1) - fromIntegral (blue c2)
+		in sqrt (dr*dr + dg*dg + db*db)
+		
+		chromaKeyMask :: ChromaKey -> [[Color]] -> [[Double]]
+		chromaKeyMask ChromaKey{..} pixels =
+		let target = targetColor
+		maxDist = sqrt ( fromIntegral (toleranceR2 + toleranceG2 + toleranceB2) )
+		soft = fromIntegral softEdge
+		
+		calculateAlpha pixel =
+
+		
+		in map (map calculateAlpha) pixels
+	\end{lstlisting}
+	
+	Функция colorDistance реализует метрику евклидова расстояния в RGB-кубе. Этот выбор не случаен — евклидово расстояние обеспечивает изотропную чувствительность, в отличие от манхэттенского расстояния или максимальной компоненты. Недостатком является вычислительная сложность из-за операции извлечения квадратного корня, однако для современных компьютеров это не является проблемой даже для изображений высокого разрешения.
+	
+	
+	\newpage
+	\section{Графические эффекты}
+	
+	\subsection{Система эффектов}
+	
+	Реализована расширяемая система эффектов, поддерживающая различные типы преобразований:
+
+	\subsection{Ядра свёртки для фильтров}
+	
+	Для свёрточных фильтров реализованы стандартные ядра:
+	
+	\begin{lstlisting}[caption=Стандартные ядра свёртки, label=lst:convolution-kernels]
+		createSharpenKernel :: [[Double]]
+		createSharpenKernel =
+		[ [ 0, -1,  0]
+		, [-1,  5, -1]
+		, [ 0, -1,  0]
+		]
+		
+		createGaussianKernel :: [[Double]]
+		createGaussianKernel =
+		[ [1, 2, 1]
+		, [2, 4, 2]
+		, [1, 2, 1]
+		] >>= (return . map (/16))
+	\end{lstlisting}
+	
+	\subsection{Основная функция применения эффектов}
+	
+	\begin{lstlisting}[caption=Функция применения эффектов, label=lst:apply-effect]
+		applyEffect :: Effect -> BMP -> BMP
+		applyEffect effect bmp@BMP{..} =
+		case pixelData of
+		RGB24 pixels -> bmp { pixelData = RGB24 (applyEffectToPixels effect pixels) }
+		RGB32 pixels -> bmp { pixelData = RGB32 (applyEffectToPixels effect pixels) }
+		 -> bmp  
+		where
+		applyEffectToPixels :: Effect -> [[Color]] -> [[Color]]
+		applyEffectToPixels eff pixels = case eff of
+		Invert -> applyInvert pixels
+		Grayscale -> applyGrayscale pixels
+		Brightness delta -> applyBrightness delta pixels
+		Contrast factor -> applyContrast factor pixels
+		FlipHorizontal -> applyFlipHorizontal pixels
+		FlipVertical -> applyFlipVertical pixels
+		Sharpen -> applyConvolution createSharpenKernel pixels
+		GaussianBlur radius -> 
+		applyConvolution (createGaussianKernelForRadius radius) pixels
+		Threshold t -> applyThreshold t pixels
+		GlitchEffect gen -> applyGlitch gen pixels
+		CustomKernel kernel -> applyConvolution kernel pixels
+	\end{lstlisting}
+	
+	\subsection{Примеры конкретных эффектов}
+	
+	\subsubsection{Преобразование в оттенки серого}
+	
+	\begin{lstlisting}[caption=Алгоритм оттенков серого, label=lst:grayscale]
+		applyGrayscale :: [[Color]] -> [[Color]]
+		applyGrayscale = map (map toGray)
+		where
+		toGray c =
+		let gray = round (0.299 * fromIntegral (red c) +
+		0.587 * fromIntegral (green c) +
+		0.114 * fromIntegral (blue c))
+		in Color gray gray gray (alpha c)
+	\end{lstlisting}
+	
+	\subsubsection{Изменение яркости}
+	
+	\begin{lstlisting}[caption=Коррекция яркости, label=lst:brightness]
+		applyBrightness :: Int -> [[Color]] -> [[Color]]
+		applyBrightness delta = map (map adjustColor)
+		where
+		adjustColor c =
+		let clamp :: Int -> Word8
+		clamp v = fromIntegral $ max 0 (min 255 v)
+		r = clamp (fromIntegral (red c) + delta)
+		g = clamp (fromIntegral (green c) + delta)
+		b = clamp (fromIntegral (blue c) + delta)
+		in Color r g b (alpha c)
+		
+		
+	\end{lstlisting}
+	
+	\subsubsection{Эффект глитча}
+	
+	\begin{lstlisting}[caption=Эффект цифрового глитча, label=lst:glitch]
+		applyGlitch :: StdGen -> [[Color]] -> [[Color]]
+		applyGlitch gen pixels =
+		let h = length pixels
+		w = length (head pixels)
+		
+		(shiftsGen, split1) = split gen
+		shifts = take h (randomRs (-10, 10) shiftsGen :: [Int])
+		
+		applyToRow y row =
+		let shift = shifts !! y
+		shifted = if shift >= 0
+		then replicate shift (Color 0 0 0 255) ++ take (w - shift) row
+		else drop (-shift) row ++ replicate (-shift) (Color 0 0 0 255)
+		in take w shifted
+		
+		shiftedRows = zipWith applyToRow [0..] pixels
+		in shiftedRows
+	\end{lstlisting}
+	
+	Представленная реализация выполняет 50 случайных обменов пикселей, что создает характерные визуальные артефакты, напоминающие повреждение данных. Количество обменов выбрано эмпирически — слишком малое количество создает едва заметный эффект, слишком большое полностью разрушает изображение.
+	
+	
+	\newpage
+	\section{Система композиции изображений}
+
+	
+	\subsection{Алгоритм смешивания цветов}
+	
+	Реализованы различные алгоритмы наложения с учётом прозрачности:
+	
+	\begin{lstlisting}[caption=Алгоритмы смешивания цветов, label=lst:blend-algorithms]
+		blendColors :: BlendMode -> Double -> Color -> Color -> Color
+		blendColors mode alphaVal bgColor fgColor =
+		case mode of
+		Normal -> blendNormal alphaVal bgColor fgColor
+		Multiply -> blendMultiply alphaVal bgColor fgColor
+		Screen -> blendScreen alphaVal bgColor fgColor
+		Overlay -> blendOverlay alphaVal bgColor fgColor
+		Additive -> blendAdditive alphaVal bgColor fgColor
+		
+		blendNormal :: Double -> Color -> Color -> Color
+		blendNormal alphaVal bg fg =
+		let mix a b = round $ fromIntegral a * (1 - alphaVal) + fromIntegral b * alphaVal
+		in Color (mix (red bg) (red fg))
+		(mix (green bg) (green fg))
+		(mix (blue bg) (blue fg))
+		(max (alpha bg) (alpha fg))
+		
+		
+	\end{lstlisting}
+	
+	Данная функция является примером паттерна "Интерпретатор" в функциональном стиле. Каждый конструктор Effect сопоставляется с конкретной функцией обработки, что обеспечивает чистую композицию эффектов и легкость расширения системы.
+	
+	\subsection{Рендеринг композиции}
+	
+	Основной алгоритм рендеринга последовательно накладывает все слои на фон:
+	
+	\begin{lstlisting}[caption=Алгоритм рендеринга композиции, label=lst:render-algorithm]
+		renderComposition :: Composition -> BMP
+		renderComposition Composition{..} =
+		let bgColor = compBackground
+		emptyRow = replicate compWidth bgColor
+		background = replicate compHeight emptyRow
+		
+		applyLayer :: [[Color]] -> Layer -> [[Color]]
+		applyLayer current Layer{..} =
+		let (offsetX, offsetY) = layerPosition
+		
+		processedImage = foldl (flip applyEffect) layerImage layerEffects
+		
+		layerPixels = case pixelData processedImage of
+		RGB24 pixels -> pixels
+		RGB32 pixels -> pixels
+		
+		lh = length layerPixels
+		lw = if lh > 0 then length (head layerPixels) else 0
+		
+		mask = case layerChromaKey of
+		Just chromaKey -> chromaKeyMask chromaKey layerPixels
+		Nothing -> replicate lh (replicate lw 1.0
+		
+		blendPixel y x currentColor
+		| y < offsetY || y >= offsetY + lh ||
+		x < offsetX || x >= offsetX + lw = currentColor
+		| otherwise =
+		let layerY = y - offsetY
+		layerX = x - offsetX
+		layerColor = layerPixels !! layerY !! layerX
+		maskAlpha = mask !! layerY !! layerX
+		finalAlpha = maskAlpha * layerOpacity
+		in blendColors layerBlendMode finalAlpha currentColor layerColor
+		
+		newPixels = [ [ blendPixel y x (current !! y !! x)
+		| x <- [0..compWidth-1] ]
+		| y <- [0..compHeight-1] ]
+		in newPixels
+		
+		finalPixels = foldl applyLayer background compLayers
+		
+		resultBMP = BMP { ... , pixelData = RGB24 finalPixels }
+		in updateFileSize resultBMP
+	\end{lstlisting}
+	
+	Режим Normal выполняет стандартное альфа-смешивание, где результирующий цвет вычисляется как линейная интерполяция между фоновым и накладываемым цветом с коэффициентом, определяемым прозрачностью. Этот режим используется по умолчанию и обеспечивает наиболее естественное наложение.
+	
+	Режим Multiply моделирует эффект наложения слайдов: результирующий цвет всегда темнее исходных, поскольку компоненты перемножаются. Этот режим полезен для наложения теней и усиления темных областей.
+	
+	Режим Screen является противоположностью Multiply — он всегда создает более светлый результат и моделирует эффект проекции нескольких изображений на один экран.
+	
+	Режим Overlay комбинирует оба подхода: для темных областей применяется Multiply, для светлых — Screen. Это создает эффект увеличенного контраста и часто используется для художественной обработки.
+	
+	Режим Additive выполняет простое сложение компонент с ограничением максимума, создавая эффект свечения при наложении светлых объектов на темный фон.
+	
+	\newpage
+	\section{Консольный интерфейс}
+	
+	\subsection{Структура приложения}
+	
+	Консольное приложение построено вокруг конечного автомата, хранящего состояние:
+	
+	\begin{lstlisting}[caption=Состояние приложения, label=lst:app-state]
+		data AppState = AppState
+		{ currentImage :: Maybe BMP      
+			, currentComposition :: Maybe Composition  
+			, undoStack :: [BMP]              
+			, redoStack :: [BMP]        
+		} deriving (Show)
+		
+		initialState :: AppState
+		initialState = AppState Nothing Nothing [] []
+	\end{lstlisting}
+	
+	\subsection{Основной цикл}
+	
+	\begin{lstlisting}[caption=Главный цикл приложения, label=lst:main-loop]
+		mainLoop :: AppState -> IO ()
+		mainLoop state = do
+		putStrLn "1. "
+		putStrLn "2."
+		putStrLn "3. "
+		putStrLn "4. "
+		putStrLn "5. "
+		putStrLn "6. "
+		putStrLn "7."
+		putStrLn "0. "
+		
+		putStr ": "
+		choice <- getLine
+		
+		case choice of
+		"1" -> do
+		newState <- loadImageMenu state
+		mainLoop newState
+		"2" -> do
+		showImageInfo state
+		mainLoop state
+		"3" -> do
+		newState <- effectsMenu state
+		mainLoop newState
+
+	\end{lstlisting}
+	
+	Данная структура обеспечивает четкое разделение между отображением информации и обработкой команд. Каждый пункт меню соответствует конкретной функции, которая получает текущее состояние и возвращает обновленное. Хвостовая рекурсия mainLoop гарантирует, что приложение не будет накапливать стек вызовов при длительной работе.
+	
+	\subsection{Система отмены операций}
+	
+	Реализован механизм undo/redo для отмены и повтора действий:
+	
+	\begin{lstlisting}[caption=Механизм undo/redo, label=lst:undo-redo]
+		undoAction :: AppState -> IO AppState
+		undoAction state = case undoStack state of
+		[] -> do
+
+		return state
+		(prev:rest) -> do
+		let current = currentImage state
+		return state
+		{ currentImage = Just prev
+			, undoStack = rest
+			, redoStack = maybe [] (: []) current ++ redoStack state
+		}
+		
+		redoAction :: AppState -> IO AppState
+		redoAction state = case redoStack state of
+		[] -> do
+
+		return state
+		(next:rest) -> do
+		let current = currentImage state
+		return state
+		{ currentImage = Just next
+			, undoStack = maybe [] (: []) current ++ undoStack state
+			, redoStack = rest
+		}
+	\end{lstlisting}
+	
+	Каждая операция, изменяющая изображение, помещает предыдущую версию в стек отмены. При выполнении undo текущее изображение перемещается в стек повтора, а верхний элемент стека отмены становится текущим. Это позволяет пользователю свободно перемещаться по истории изменений.
+	
+	
+	\newpage
+	\section{Результаты }
+	В результате выполнения курсовой работы была разработана система обработки изображений на языке Haskell, включающая:
+	
+	\begin{enumerate}
+		\item \textbf{Полноценный парсер} с поддержкой:
+		\begin{itemize}
+			\item Различных битовых глубин (1, 24, 32 бита)
+			\item Корректной обработки заголовков и структур данных
+			\item Поддержки как монохромных, так и цветных изображений
+		\end{itemize}
+		
+		\item \textbf{Расширяемую систему графических эффектов}, содержащую:
+		\begin{itemize}
+			\item 10+ различных эффектов и фильтров
+			\item Поддержку свёрточных операций
+			\item Специальные эффекты (глитч, пороговое преобразование)
+		\end{itemize}
+		
+		\item \textbf{Технологию хромакея} с возможностями:
+		\begin{itemize}
+			\item Настройки целевого цвета и допусков
+			\item Сглаживания краёв маски
+			\item Предустановок для стандартных цветов экранов
+		\end{itemize}
+		
+		\item \textbf{Мощную систему композиции изображений}, обеспечивающую:
+		\begin{itemize}
+			\item Многослойные композиции с позиционированием
+			\item Различные режимы наложения слоёв
+			\item Учёт масок прозрачности и хромакея
+			\item Последовательное применение эффектов
+		\end{itemize}
+		
+		\item \textbf{Удобный консольный интерфейс} с функциями:
+		\begin{itemize}
+			\item Интерактивным меню управления
+			\item Системой отмены/повтора операций
+			\item Управлением композициями и слоями
+		\end{itemize}
+	\end{enumerate}
+	
+	\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=1]{/Users/Seva/Desktop/7.png}
+		\label{splitterH} 
+		\caption{Исходное изображение}
+	\end{figure}
+	
+		\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=0.6]{/Users/Seva/Desktop/2.png}
+		\label{splitterH} 
+		\caption{Пиксилизация}
+	\end{figure}
+	
+		\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=0.6]{/Users/Seva/Desktop/3.png}
+		\label{splitterH} 
+		\caption{Инверсия}
+	\end{figure}
+	
+		\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=0.6]{/Users/Seva/Desktop/4.png}
+		\label{splitterH} 
+		\caption{Разворот по вертикали}
+	\end{figure}
+	
+		\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=0.18]{/Users/Seva/Desktop/8.png}
+		\label{splitterH} 
+		\caption{Глитч эффект}
+	\end{figure}
+	
+		\begin{figure}[htpb]
+		\centering
+		\includegraphics[scale=0.6]{/Users/Seva/Desktop/6.png}
+		\label{splitterH} 
+		\caption{Результат рирпроекции}
+	\end{figure}
+	
+	
+	\newpage
+	\section*{Выводы}
+	
+	В результате выполнения работы была реализована система для обработки и генерации изображений из заданного набора изображений. В ходе выполнения достигнуты следующие задачи:
+	
+	\begin{itemize}
+		\item разработан синтаксический анализатор файлов изображений формата PNM (PBM, PGM, PPM) и PNG, который разбирает заголовок и содержание файла;
+		\item реализован функционал для наложения маски по цвету, которая предоставляет пользователю напрямую задавать значения оттенков и цветов, а также выбирать стандартные значения синего и зеленого;
+		\item обеспечено применение графических эффектов для обработки изображения: блэк-эффект, grayscale-эффект, пикселизация, усиление резкости, пороговое преобразование в ч/б, инверсия цвета, отражение по вертикали и горизонтали, изменение яркости и контрастности, глянцевый эффект;
+		\item реализован функционал для применения риритроекции;
+		\item обеспечена обработка ошибок и некорректного пользовательского ввода.
+	\end{itemize}
+	
+		\newpage
+	\addcontentsline{toc}{section}{Список литературы}
+	
+	\vspace{-1.5cm}
+	\begin{thebibliography}{0}
+		\bibitem{hod}
+		Haskell Official Documentation -- официальная документация по языку Haskell [Электронный ресурс]. 	 
+		\href {https://www.haskell.org/documentation/}{https://www.haskell.org/documentation/}
+		\bibitem{fintech}
+		Digital Payment Systems and Transaction Processing / A. Rodriguez, S. Kumar // ACM Computing Surveys. — 2022. — Vol. 55, No. 8. — P. 1-38
+		\href {https://www.researchgate.net/publication/364835418_Towards_the_Advancement_of_Cashless_Transaction_A_Security_Analysis_of_Electronic_Payment_Systems}{https://www.researchgate.net/publication/364835418\_Towards\_the\_Advancement\_of
+			\_Cashless\_Transaction\_A\_Security\_Analysis\_of\_Electronic\_Payment\_Systems}
+		\bibitem{modeling}
+		Data Modeling for Financial Transactions: Best Practices and Patterns / K. Chen // Journal of Financial Data Science. — 2021. — Vol. 3, No. 2. — P. 45-62	 
+		\href {https://www.researchgate.net/publication/385025548_Predictive_Analytics_in_Financial_Management_Enhancing_Decision-Making_and_Risk_Management}{https://www.researchgate.net/publication/385025548\_Predictive\_Analytics\_in\_Finan-
+			cial\_Management\_Enhancing\_Decision-Making\_and\_Risk\_Management}
+		
+	\end{thebibliography}
+	
+\end{document}

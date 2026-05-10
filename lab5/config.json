@@ -1,0 +1,5 @@
+{
+    "adminToken": "secret123",
+    "userTokens": ["abc", "def", "user123", "test456"],
+    "maxAttempts": 3
+}

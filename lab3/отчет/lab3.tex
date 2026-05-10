@@ -1,0 +1,366 @@
+\documentclass[a4paper, final]{article}
+\usepackage[14pt]{extsizes}
+\usepackage{tabularx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage[left=25mm, top=20mm, right=20mm, bottom=20mm, footskip=10mm]{geometry}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\hypersetup{colorlinks,
+	allcolors=[RGB]{010 090 200}}
+
+\lstset{
+	language=Haskell,
+	tabsize=2,
+	breaklines,
+	basicstyle=\footnotesize,
+	columns=fullflexible,
+	numbers=left,
+	numberstyle={\footnotesize},
+	keywordstyle=\color{blue},
+	inputencoding=utf8,
+	extendedchars=true
+}
+
+
+\begin{document}
+	
+	\begin{center}
+		\hfill \break
+		\hfill \break
+		\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+			федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+		\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+		\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+		\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+		
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\hfill \break
+		\large{Отчет по лабораторной работе №3}\\
+		\large{по дисциплине}\\
+		\large{<<Функциональное программирование>>}\\
+		\large{Вариант 5}\\
+		\hfill \break
+	\end{center}
+	
+	\small{ 
+		\begin{tabular}{lrrl}
+			\!\!\!Студент, & \hspace{2cm} & & \\
+			\!\!\!группы 5130201/30102 & \hspace{2cm} & \underline{\hspace{3cm}} &Санько В. В. \\\\
+			\!\!\!Преподаватель,\\ \hspace{-5pt}к. т. н., доц. & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+			&&\hspace{4cm}
+		\end{tabular}
+		\begin{flushright}
+			<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2025г.
+		\end{flushright}
+	}
+	
+	\hfill \break
+	\vspace{3cm}
+	\begin{center} \small{Санкт-Петербург, 2025} \end{center}
+	\thispagestyle{empty}
+	
+	\newpage
+	
+	\tableofcontents
+	
+	\newpage
+	\section*{Введение}
+	\addcontentsline{toc}{section}{Введение}
+	
+	Финансовая модель транзакций — это система учета и классификации денежных операций, которая позволяет анализировать финансовые потоки. В основе такой модели лежит формализованное представление транзакций с четко определенными атрибутами: идентификатором, суммой, типом операции и описанием.
+	
+	Отличительной особенностью финансовой модели  является разделение транзакций по типам операций. Доходы - это поступления денежных средств, расходы — затраты, а переводы — перемещения между счетами. 
+	
+	Транзакции могут быть классифицированы разными способами, использую механизмы фильтрации и разбиения на группы. Например, логика проверки пороговой стоимости позволяет выделять значимые средства. С другой стороны, при совместном использовании нескольких критериев возможна многомерная классификация транзакций, что позволяет получить максимум данных из информации и, соответственно, увеличить степень контроля.
+	
+	В данной работе представлена расширенная версия финансовой модели. Введены типы FinancialSummary для статистической сводки и TransactionMonitor a для расширенного анализа транзакций, и реализовали для них представителей указанных классов типов. 
+	
+	
+	
+	\newpage
+	\section*{Постановка задачи}
+	\addcontentsline{toc}{section}{Постановка задачи}
+	\par Цель работы -- разработать расширение системы финансового мониторинга, включающее:
+	\begin{itemize}
+		\item Финансовая статистику;
+		\item Система мониторинга транзакций;
+		\item Реализовать проект в Stack.
+	\end{itemize}
+	
+	
+	\newpage
+	\section{Особенности реализации}
+	
+	\subsection{Функторы и аппликативные функторы}
+	
+	Реализация Semigroup и Monoid для FinancialSummary:
+	
+	\begin{lstlisting}[caption={Определение типов данных для финансовых транзакций}, label={lst:types}]
+	instance Semigroup FinancialSummary where
+	(FinancialSummary inc1 exp1 cnt1 max1) <> (FinancialSummary inc2 exp2 cnt2 max2) =
+	FinancialSummary
+	{ totalIncome = inc1 + inc2
+		, totalExpense = exp1 + exp2
+		, transactionCount = cnt1 + cnt2
+		, maxTransaction = case (max1, max2) of
+		(Nothing, Nothing) -> Nothing
+		(Just t1, Nothing) -> Just t1
+		(Nothing, Just t2) -> Just t2
+		(Just t1, Just t2) -> 
+		if amount t1 >= amount t2 
+		then Just t1 
+		else Just t2
+	}
+	\end{lstlisting}
+	
+	Использование Maybe Transaction для представления максимальной транзакции позволяет корректно обрабатывать отсутствие данных. Нейтральный элемент mempty содержит нулевые значения и Nothing для максимальной транзакции.
+	
+	\subsection{Реализация TransactionMonitor как newtype}
+	
+	Функция \texttt{Конструктор}:
+	
+	\begin{lstlisting}[caption={Функция проверки порогового значения}, label={lst:threshold}]
+	newtype TransactionMonitor a = TransactionMonitor 
+	{ runMonitor :: Transaction -> (Bool, a) 
+	}
+	\end{lstlisting}
+	
+	Паттерн позволяет отделить логику мониторинга от её выполнения.
+	
+	\subsection{Реализация Functor для TransactionMonitor}
+	
+	\texttt{Интерфейс:} 
+	
+	\begin{lstlisting}[caption={Функция классификации транзакций}, label={lst:classify}]
+	instance Functor TransactionMonitor where
+	fmap f (TransactionMonitor monitor) = TransactionMonitor $ \t ->
+	let (needsAttention, result) = monitor t
+	in (needsAttention, f result)
+	\end{lstlisting}
+	
+	Функция fmap применяет преобразование только к значению a, не изменяя флаг Bool.
+	
+	\subsection{Реализация Applicative для TransactionMonitor}
+	
+	Создает монитор, который никогда не требует внимания, а также возвращает константное значение для любой транзакции.
+	
+	\begin{lstlisting}[caption={Вспомогательные функции-предикаты}, label={lst:predicates}]
+	pure x = TransactionMonitor $ \_ -> (False, x)
+	\end{lstlisting}
+	
+	\textbf{<*> (аппликация):}
+	\begin{lstlisting}[caption={Вспомогательные функции-предикаты}, label={lst:predicates}]
+		(TransactionMonitor f) <*> (TransactionMonitor g) = 
+		TransactionMonitor $ \t ->
+		let (needsAttention1, func) = f t
+		(needsAttention2, value) = g t
+		in (needsAttention1 || needsAttention2, func value)
+	\end{lstlisting}
+	
+	Это означает: если хотя бы один монитор требует внимания, результирующий монитор также требует внимания, при этом значения вычисляются независимо для каждого монитора.
+	
+	\newpage
+	\section{Результаты работы программы}
+	
+	\subsection{Тестирование транзакций}
+	
+	Для проверки работоспособности подготовлен набор тестовых транзакций Рис. \ref{fig:output1}.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab3/отчет/1.png}
+		\caption{Тестирование нормальной большой и подозрительной транзакции}
+		\label{fig:output1}
+	\end{figure}
+	
+	\subsection{Демонстрация FinancialSummary}
+	
+	На рисунке ниже Рис. \ref{fig:output2} отображено, что программа скомбинировала сразу несколько данных.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab3/отчет/2.png}
+		\caption{Пример использования функции}
+		\label{fig:output2}
+	\end{figure}
+	
+	\subsection{Демонстрация Monoid}
+	
+	Агрегация финансовой статистики: от отдельных транзакций к сводному отчету показан на Рис. \ref{fig:output3}.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab3/отчет/3.png}
+		\caption{Примеры использования функций на разных значениях}
+		\label{fig:output3}
+	\end{figure}
+	
+	
+	Система работает правильно: мониторы находят подозрительные транзакции, а статистика корректно суммируется. Все функции выполняют свои задачи без ошибок.
+	
+	\newpage
+	\section*{Заключение}
+	\addcontentsline{toc}{section}{Заключение}
+	
+	В ходе работы была реализована система мониторинга финансовых транзакций на Haskell, демонстрирующая применение функциональных абстракций. Созданы два ключевых компонента: FinancialSummary с поддержкой моноидных операций для агрегации статистики и TransactionMonitor, имеющий структуру аппликативного функционального.
+	
+	Использование моноидов позволило естественно комбинировать финансовые отчеты, функторы обеспечили отображение полученной информации, не изменяли при этом сам механизм проверок логики. Аппликативные функторы дали возможность построения сложных мониторов из простых проверок. Система включает два ключевых компонента: FinancialSummary с поддержкой моноидных операций для агрегации отчетов и TransactionMonitor.
+	
+	Разработанное решение служит практическим примером применения абстракций функционального программирования для создания систем обработки данных в финансовой области.
+	
+	
+	\newpage
+	\addcontentsline{toc}{section}{Список литературы}
+	
+	\vspace{-1.5cm}
+	\begin{thebibliography}{0}
+		\bibitem{hod}
+		Haskell Official Documentation -- официальная документация по языку Haskell [Электронный ресурс]. 	 
+		\href {https://www.haskell.org/documentation/}{https://www.haskell.org/documentation/}
+		\bibitem{fintech}
+		Digital Payment Systems and Transaction Processing / A. Rodriguez, S. Kumar // ACM Computing Surveys. — 2022. — Vol. 55, No. 8. — P. 1-38
+		\href {https://www.researchgate.net/publication/364835418_Towards_the_Advancement_of_Cashless_Transaction_A_Security_Analysis_of_Electronic_Payment_Systems}{https://www.researchgate.net/publication/364835418\_Towards\_the\_Advancement\_of
+			\_Cashless\_Transaction\_A\_Security\_Analysis\_of\_Electronic\_Payment\_Systems}
+		\bibitem{modeling}
+		Data Modeling for Financial Transactions: Best Practices and Patterns / K. Chen // Journal of Financial Data Science. — 2021. — Vol. 3, No. 2. — P. 45-62	 
+		\href {https://www.researchgate.net/publication/385025548_Predictive_Analytics_in_Financial_Management_Enhancing_Decision-Making_and_Risk_Management}{https://www.researchgate.net/publication/385025548\_Predictive\_Analytics\_in\_Finan-
+			cial\_Management\_Enhancing\_Decision-Making\_and\_Risk\_Management}
+		
+	\end{thebibliography}
+	
+	\newpage
+	\section*{Приложение. Исходный код}
+	\addcontentsline{toc}{section}{Приложение. Исходный код}
+	
+	\begin{lstlisting}[caption={Полный исходный код программы}]
+		{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+		
+		module Lib where
+		
+		data TransactionType = Income | Expense | Transfer
+		deriving (Show, Eq, Enum, Bounded)
+		
+		data Transaction = Transaction
+		{ transactionId :: Int
+			, amount :: Double
+			, transactionType :: TransactionType
+			, description :: String
+			, account :: String 
+		}
+		deriving (Show, Eq)
+		
+		
+		data FinancialSummary = FinancialSummary
+		{ totalIncome :: Double
+			, totalExpense :: Double
+			, transactionCount :: Int
+			, maxTransaction :: Maybe Transaction  
+		}
+		deriving (Show, Eq)
+		
+		
+		instance Semigroup FinancialSummary where
+		(FinancialSummary inc1 exp1 cnt1 max1) <> (FinancialSummary inc2 exp2 cnt2 max2) =
+		FinancialSummary
+		{ totalIncome = inc1 + inc2
+			, totalExpense = exp1 + exp2
+			, transactionCount = cnt1 + cnt2
+			, maxTransaction = case (max1, max2) of
+			(Nothing, Nothing) -> Nothing
+			(Just t1, Nothing) -> Just t1
+			(Nothing, Just t2) -> Just t2
+			(Just t1, Just t2) -> 
+			if amount t1 >= amount t2 
+			then Just t1 
+			else Just t2
+		}
+		
+		instance Monoid FinancialSummary where
+		mempty = FinancialSummary
+		{ totalIncome = 0
+			, totalExpense = 0
+			, transactionCount = 0
+			, maxTransaction = Nothing
+		}
+		
+		newtype TransactionMonitor a = TransactionMonitor 
+		{ runMonitor :: Transaction -> (Bool, a) 
+		}
+		
+		instance Functor TransactionMonitor where
+		fmap f (TransactionMonitor monitor) = TransactionMonitor $ \t ->
+		let (needsAttention, result) = monitor t
+		in (needsAttention, f result)
+		
+		instance Applicative TransactionMonitor where
+		pure x = TransactionMonitor $ \_ -> (False, x)
+		
+		(TransactionMonitor f) <*> (TransactionMonitor g) = 
+		TransactionMonitor $ \t ->
+		let (needsAttention1, func) = f t
+		(needsAttention2, value) = g t
+		in (needsAttention1 || needsAttention2, func value)
+		
+		transactionToSummary :: Transaction -> FinancialSummary
+		transactionToSummary t = FinancialSummary
+		{ totalIncome = case transactionType t of Income -> amount t; _ -> 0
+			, totalExpense = case transactionType t of Expense -> amount t; _ -> 0
+			, transactionCount = 1
+			, maxTransaction = Just t
+		}
+		
+		transactionsToSummary :: [Transaction] -> FinancialSummary
+		transactionsToSummary = foldMap transactionToSummary
+		
+		combinePeriodReports :: [FinancialSummary] -> FinancialSummary
+		combinePeriodReports = mconcat  
+		
+		largeTransactionMonitor :: TransactionMonitor Double
+		largeTransactionMonitor = TransactionMonitor $ \t ->
+		let needsAttention = amount t > 1000
+		in (needsAttention, amount t)
+		
+		suspiciousTransactionMonitor :: TransactionMonitor String
+		suspiciousTransactionMonitor = TransactionMonitor $ \t ->
+		let needsAttention = amount t < 0  
+		in (needsAttention, description t)
+		
+		combinedMonitor :: TransactionMonitor (Double, String)
+		combinedMonitor = (,) <$> largeTransactionMonitor <*> suspiciousTransactionMonitor
+		
+		generateNotificationDouble :: (Bool, Double) -> Maybe String
+		generateNotificationDouble (needsAttention, amt)
+		| needsAttention = Just $ " " ++ show amt
+		| otherwise = Nothing
+		
+		generateNotificationString :: (Bool, String) -> Maybe String
+		generateNotificationString (needsAttention, desc)
+		| needsAttention = Just $ "'" ++ desc ++ "'"
+		| otherwise = Nothing
+		
+		generateNotificationPair :: (Bool, (Double, String)) -> Maybe String
+		generateNotificationPair (needsAttention, (amt, desc))
+		| needsAttention = Just $ " '" ++ desc ++ "'  " ++ show amt
+		| otherwise = Nothing
+		
+		complexMonitoringSystem :: Transaction -> [Maybe String]
+		complexMonitoringSystem t =
+		[ generateNotificationDouble $ runMonitor largeTransactionMonitor t
+		, generateNotificationString $ runMonitor suspiciousTransactionMonitor t
+		, generateNotificationPair $ runMonitor combinedMonitor t
+		]
+	\end{lstlisting}
+	
+\end{document}

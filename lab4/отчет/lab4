@@ -1,0 +1,357 @@
+\documentclass[a4paper, final]{article}
+\usepackage[14pt]{extsizes}
+\usepackage{tabularx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage[left=25mm, top=20mm, right=20mm, bottom=20mm, footskip=10mm]{geometry}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\hypersetup{colorlinks,
+allcolors=[RGB]{010 090 200}}
+
+\lstset{
+language=Haskell,
+tabsize=2,
+breaklines,
+basicstyle=\footnotesize,
+columns=fullflexible,
+numbers=left,
+numberstyle={\footnotesize},
+keywordstyle=\color{blue},
+inputencoding=utf8,
+extendedchars=true
+}
+
+\begin{document}
+
+\begin{center}
+\hfill \break
+\hfill \break
+\normalsize{МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+федеральное государственное автономное образовательное учреждение высшего образования «Санкт-Петербургский политехнический университет Петра Великого»\\[10pt]}
+\normalsize{Институт компьютерных наук и кибербезопасности}\\[10pt] 
+\normalsize{Высшая школа технологий искусственного интеллекта}\\[10pt] 
+\normalsize{Направление: 02.03.01 <<Математика и компьютерные науки>>}\\
+
+\hfill \break
+\hfill \break
+\hfill \break
+\hfill \break
+\large{Отчет по лабораторной работе №2}\\
+\large{по дисциплине}\\
+\large{<<Функциональное программирование>>}\\
+\large{Вариант 5}\\
+\hfill \break
+\end{center}
+
+\small{ 
+\begin{tabular}{lrrl}
+\!\!\!Студент, & \hspace{2cm} & & \\
+\!\!\!группы 5130201/30102 & \hspace{2cm} & \underline{\hspace{3cm}} &Санько В. В. \\\\
+\!\!\!Преподаватель,\\ \hspace{-5pt}к. т. н., доц. & \hspace{2cm} &  \underline{\hspace{3cm}} &  Моторин Д. Е. \\\\
+&&\hspace{4cm}
+\end{tabular}
+\begin{flushright}
+<<\underline{\hspace{1cm}}>>\underline{\hspace{2.5cm}} 2025г.
+\end{flushright}
+}
+
+\hfill \break
+\vspace{3cm}
+\begin{center} \small{Санкт-Петербург, 2025} \end{center}
+\thispagestyle{empty}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+\section*{Введение}
+\addcontentsline{toc}{section}{Введение}
+
+Финансовая модель транзакций — это система учета и классификации денежных операций, которая позволяет анализировать финансовые потоки. В основе такой модели лежит формализованное представление транзакций с четко определенными атрибутами: идентификатором, суммой, типом операции и описанием.
+
+Отличительной особенностью финансовой модели  является разделение транзакций по типам операций. Доходы - это поступления денежных средств, расходы — затраты, а переводы — перемещения между счетами. 
+
+Транзакции могут быть классифицированы разными способами, использую механизмы фильтрации и разбиения на группы. Например, логика проверки пороговой стоимости позволяет выделять значимые средства. С другой стороны, при совместном использовании нескольких критериев возможна многомерная классификация транзакций, что позволяет получить максимум данных из информации и, соответственно, увеличить степень контроля.
+
+
+
+\newpage
+\section*{Постановка задачи}
+\addcontentsline{toc}{section}{Постановка задачи}
+\par Цель работы — разработка программной модели для учета и анализа финансовых транзакций. В рамках поставленной задачи требуется:
+\begin{itemize}
+\item Определить структуры данных для представления транзакций и их типов;
+\item Реализовать функцию проверки превышения заданного порога суммы транзакции;
+\item Создать рекурсивную функцию, выполняющую классификацию списка транзакций по двум пользовательским условиям и возвращающую четыре категории: удовлетворяющие только первому условию, только второму, обоим условиям одновременно или ни одному из них.
+\end{itemize}
+
+
+\newpage
+\section{ Математическое описание}
+
+\subsection{Система типов в Haskell}
+
+Haskell обладает ясной системой типов, которая включает:
+
+\begin{itemize}
+\item \textbf{Алгебраические типы данных} - позволяют создавать пользовательские типы
+\item \textbf{Типы-суммы} (sum types) - представляют выбор между несколькими вариантами
+\item \textbf{Типы-произведения} (product types) - объединяют несколько значений в одну структуру
+\item \textbf{Вывод типов} - компилятор автоматически определяет типы выражений
+\end{itemize}
+
+\subsection{Финансовые транзакции}
+
+Финансовая транзакция - операция, связанная с движением денежных средств. Каждая операция получает свой номер, сумму денег, тип операции и краткое описание. Типы операций делятся на три простые категории: доходы, расходы и переводы между счетами. 
+
+В рамках данной работы рассматриваются три типа транзакций:
+
+\begin{itemize}
+\item \textbf{Income} - доход, поступление денежных средств
+\item \textbf{Expense} - расход, outflow денежных средств  
+\item \textbf{Transfer} - перевод средств между счетами
+\end{itemize}
+
+Математически это выглядит как конструктор, который собирает все данные в одну запись. Для анализа этих данных мы используем специальные фильтры, которые сортируют транзакции по разным признакам — например, ищут все крупные доходы или мелкие расходы. 
+
+\subsection{Рекурсивная функция классификации}
+\par Рекурсивная функция \textbf{classifyTransactions} последовательно обрабатывает каждую транзакцию из списка и распределяя её в одну из четырёх категорий.
+
+\par Функция принимает на вход два условия-фильтра и список транзакций, после чего начинает обход списка с начала до конца. На каждом шаге она проверяет текущую транзакцию: удовлетворяет ли она первому условию, второму, обоим сразу или ни одному из них. В зависимости от результата проверки, транзакция отправляется в соответствующий "карман" — один из четырёх накапливаемых списков.
+
+\par Процесс повторяется для следующей транзакции, при этом функция "запоминает" уже отсортированные данные и продолжает работу с оставшейся частью списка. Когда все транзакции обработаны и список становится пустым, функция возвращает готовую коллекцию из четырёх категорий, где каждая транзакция нашла своё место согласно заданным критериям отбора.
+
+
+
+
+\newpage
+\section{Особенности реализации}
+
+\subsection{Определение типов данных}
+
+Для представления финансовых транзакций определены два типа данных:
+
+\begin{lstlisting}[caption={Определение типов данных для финансовых транзакций}, label={lst:types}]
+data TransactionType = Income | Expense | Transfer
+deriving (Show, Eq)
+
+data Transaction = Transaction Int Double TransactionType String
+deriving (Show, Eq)
+\end{lstlisting}
+
+\texttt{TransactionType} является типом-суммой с тремя конструкторами, представляющими различные типы транзакций. \texttt{Transaction} - тип-произведение, содержащий четыре поля: идентификатор (целое число), сумма (вещественное число), тип транзакции и описание (строка).
+
+\subsection{Функция проверки порогового значения}
+
+Функция \texttt{exceedsThreshold} проверяет, превышает ли сумма транзакции заданный порог:
+
+\begin{lstlisting}[caption={Функция проверки порогового значения}, label={lst:threshold}]
+exceedsThreshold :: Double -> Transaction -> Bool
+exceedsThreshold threshold (Transaction _ amount _ _) = amount > threshold
+\end{lstlisting}
+
+Функция использует сопоставление с образцом для извлечения суммы из структуры и сравнивает ее с пороговым значением.
+
+\subsection{Функция классификации транзакций}
+
+Рекурсивная функция \texttt{classifyTransactions} выполняет классификацию элементов списка по двум предикатам:
+
+\begin{lstlisting}[caption={Функция классификации транзакций}, label={lst:classify}]
+classifyTransactions :: (a -> Bool) -> (a -> Bool) -> [a] -> ([a], [a], [a], [a])
+classifyTransactions p1 p2 list = go list ([], [], [], [])
+where
+go [] result = result
+go (x:xs) (only1, only2, both, neither) =
+let p1True = p1 x
+p2True = p2 x
+in if p1True && p2True
+then go xs (only1, only2, x:both, neither)
+else if p1True && not p2True
+then go xs (x:only1, only2, both, neither)
+else if not p1True && p2True
+then go xs (only1, x:only2, both, neither)
+else go xs (only1, only2, both, x:neither)
+\end{lstlisting}
+
+Функция возвращает кортеж из четырех списков:
+\begin{itemize}
+\item Элементы, удовлетворяющие только первому предикату
+\item Элементы, удовлетворяющие только второму предикату  
+\item Элементы, удовлетворяющие обоим предикатам
+\item Элементы, не удовлетворяющие ни одному предикату
+\end{itemize}
+
+\subsection{Вспомогательные функции-предикаты}
+
+Для удобства тестирования реализованы вспомогательные функции-предикаты:
+
+\begin{lstlisting}[caption={Вспомогательные функции-предикаты}, label={lst:predicates}]
+isIncomeTransaction :: Transaction -> Bool
+isIncomeTransaction (Transaction _ _ ttype _) = ttype == Income
+
+isExpenseTransaction :: Transaction -> Bool
+isExpenseTransaction (Transaction _ _ ttype _) = ttype == Expense
+
+isTransferTransaction :: Transaction -> Bool
+isTransferTransaction (Transaction _ _ ttype _) = ttype == Transfer
+
+isLargeTransaction :: Transaction -> Bool
+isLargeTransaction = exceedsThreshold 1000
+
+isSmallTransaction :: Transaction -> Bool
+isSmallTransaction (Transaction _ amount _ _) = amount < 500
+\end{lstlisting}
+
+Функции предназначены для упращенного показа работы отдельных частей программы.
+
+\newpage
+\section{Результаты работы программы}
+
+\subsection{Подготовка тестовых данных}
+
+Для проверки работоспособности подготовлен набор тестовых транзакций Рис. \ref{fig:output1}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab2/2.png}
+\caption{Тестовые данные}
+\label{fig:output1}
+\end{figure}
+
+\subsection{Примеры использования}
+
+На рисунке ниже Рис. \ref{fig:output2} отображено, что программа скомпилирована без ошибок, а также пример работы функции exceedsThreshold на тестовых данных.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab2/1.png}
+\caption{Пример использования функции}
+\label{fig:output2}
+\end{figure}
+
+Также предоставлен вывод этой же функции exceedsThreshold на разных тестовых значений Рис. \ref{fig:output3}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab2/3.png}
+\caption{Примеры использования функций на разных значениях}
+\label{fig:output3}
+\end{figure}
+
+\newpage 
+Проведенное тестирование демонстрирует корректную работу всех реализованных функций-предикатов с использованием операции map Рис. \ref{fig:output4}. Функция isIncomeTransaction успешно идентифицирует транзакции типа "доход". Функция isExpenseTransaction надежно определяет транзакции расхода, показывая ожидаемые результаты для тестовых данных. Проверка размера транзакций также работает корректно: isLargeTransaction возвращает истину для сумм, превышающих 1000 единиц, а isSmallTransaction — для сумм менее 500 единиц. 
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab2/4.png}
+\caption{Проверка типа и размера транзакций}
+\label{fig:output4}
+\end{figure}
+
+На Рис. \ref{fig:output5} видно как функция classifyTransactions обрабатывает случаи с пустыми списками, а затем случай при грамотном вызове, на котором видно все зачисления на счет. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\linewidth]{/Users/Seva/Polytech/Haskell/lab2/5.png}
+\caption{Пустой список, одна транзакция и точное совпадение}
+\label{fig:output5}
+\end{figure}
+
+Все тесты демонстрируют, что программа работает корректно и соответствует поставленным требованиям. Функции правильно классифицируют транзакции по типу и сумме, а также корректно обрабатывают пограничные случаи.
+
+\newpage
+\section{Заключение}
+\addcontentsline{toc}{section}{Заключение}
+
+В ходе выполнения лабораторной работы была успешно разработана модель финансовых транзакций на языке Haskell. Созданы алгебраические типы данных для представления типов транзакций (Income, Expense, Transfer) и структуры самих транзакций с полями идентификатора, суммы, типа операции и описания.
+
+Реализована функция проверки превышения порогового значения суммы транзакции, обеспечивающая анализ финансовых операций. Разработана рекурсивная функция классификации, позволяющая разделять транзакции по двум независимым параметрам и возвращающая четыре категории: удовлетворяющие только первому условию, только второму, обоим условиям одновременно или ни одному из них.
+
+Данная программа может лечь в основу реального проекта финансовой аналитики, так как она легко масштабируется. Главными достоинствами программы является простой синтаксис и архитектура, которая позволяет легко дополнить  программу нововведениями.
+
+
+\newpage
+\addcontentsline{toc}{section}{Список литературы}
+
+\vspace{-1.5cm}
+\begin{thebibliography}{0}
+\bibitem{hod}
+Haskell Official Documentation -- официальная документация по языку Haskell [Электронный ресурс]. 	 
+\href {https://www.haskell.org/documentation/}{https://www.haskell.org/documentation/}
+\bibitem{fintech}
+Digital Payment Systems and Transaction Processing / A. Rodriguez, S. Kumar // ACM Computing Surveys. — 2022. — Vol. 55, No. 8. — P. 1-38
+\href {https://www.researchgate.net/publication/364835418_Towards_the_Advancement_of_Cashless_Transaction_A_Security_Analysis_of_Electronic_Payment_Systems}{https://www.researchgate.net/publication/364835418\_Towards\_the\_Advancement\_of
+\_Cashless\_Transaction\_A\_Security\_Analysis\_of\_Electronic\_Payment\_Systems}
+\bibitem{modeling}
+Data Modeling for Financial Transactions: Best Practices and Patterns / K. Chen // Journal of Financial Data Science. — 2021. — Vol. 3, No. 2. — P. 45-62	 
+\href {https://www.researchgate.net/publication/385025548_Predictive_Analytics_in_Financial_Management_Enhancing_Decision-Making_and_Risk_Management}{https://www.researchgate.net/publication/385025548\_Predictive\_Analytics\_in\_Finan-
+cial\_Management\_Enhancing\_Decision-Making\_and\_Risk\_Management}
+
+\end{thebibliography}
+
+\newpage
+\section*{Приложение. Исходный код}
+\addcontentsline{toc}{section}{Приложение. Исходный код}
+
+\begin{lstlisting}[caption={Полный исходный код программы}]
+data TransactionType = Income | Expense | Transfer
+deriving (Show, Eq)
+
+data Transaction = Transaction Int Double TransactionType String
+deriving (Show, Eq)
+
+exceedsThreshold :: Double -> Transaction -> Bool
+exceedsThreshold threshold (Transaction _ amount _ _) = amount > threshold
+
+classifyTransactions :: (a -> Bool) -> (a -> Bool) -> [a] -> ([a], [a], [a], [a])
+classifyTransactions p1 p2 list = go list ([], [], [], [])
+where
+go [] result = result
+go (x:xs) (only1, only2, both, neither) =
+let p1True = p1 x
+p2True = p2 x
+in if p1True && p2True
+then go xs (only1, only2, x:both, neither)
+else if p1True && not p2True
+then go xs (x:only1, only2, both, neither)
+else if not p1True && p2True
+then go xs (only1, x:only2, both, neither)
+else go xs (only1, only2, both, x:neither)
+
+isIncomeTransaction :: Transaction -> Bool
+isIncomeTransaction (Transaction _ _ ttype _) = ttype == Income
+
+isExpenseTransaction :: Transaction -> Bool
+isExpenseTransaction (Transaction _ _ ttype _) = ttype == Expense
+
+isTransferTransaction :: Transaction -> Bool
+isTransferTransaction (Transaction _ _ ttype _) = ttype == Transfer
+
+isLargeTransaction :: Transaction -> Bool
+isLargeTransaction = exceedsThreshold 1000
+
+isSmallTransaction :: Transaction -> Bool
+isSmallTransaction (Transaction _ amount _ _) = amount < 500
+
+transaction1 = Transaction 1 1500 Income "Salary"
+transaction2 = Transaction 2 300 Expense "Groceries"
+transaction3 = Transaction 3 2000 Transfer "Investment"
+transaction4 = Transaction 4 800 Income "Freelance"
+transaction5 = Transaction 5 1200 Expense "Rent"
+transaction6 = Transaction 6 400 Transfer "Loan payment"
+
+testTransactions = [transaction1, transaction2, transaction3, 
+transaction4, transaction5, transaction6]
+\end{lstlisting}
+
+\end{document}
